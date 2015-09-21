@@ -20,20 +20,80 @@ describe('Integration Tests', function() {
         action: 'start',
         name: 'standalone-scram-sha-1',
         port: 27000,
-        auth_mechanism: "SCRAM_SHA_1",
-        username: "adminUser",
-        password: "adminPass"
+        auth_mechanism: 'SCRAM_SHA_1',
+        username: 'adminUser',
+        password: 'adminPass'
       };
       var tmpobj = null;
 
       before(function(done) {
         tmpDir = tmp.dirSync({unsafeCleanup:true});
         opts.dbpath = tmpDir.name;
-        debug("DB Dir: ", tmpDir.name);
+        debug('DB Dir: ', tmpDir.name);
+
+        run(opts, function(err) {
+          if (err) return done(err);
+          done();
+        });
+      });
+
+      after(function(done) {
+        opts.action = 'stop';
+        run(opts, function(err) {
+          if (err) return done(err);
+          //tmpDir.removeCallback();
+          //tmpKeyFile.removeCallback();
+          done();
+        });
+      });
+
+      it('should connect to a mongod with scram-sha-1 enabled', function(done) {
+        var connection = new Connection({
+          port: opts.port,
+          mongodb_username: 'adminUser',
+          mongodb_password: 'adminPass'
+        });
+        MongoClient.connect(connection.uri, connection.options, function(err, db) {
+          assert.ifError(err);
+          done();
+        });
+      });
+
+     it('should not connect to a mongod with scram-sha-1 enabled and the wrong username/password', function(done) {
+        var connection = new Connection({
+          port: opts.port,
+          mongodb_username: 'adminUser',
+          mongodb_password: 'adminPassWrong'
+        });
+        MongoClient.connect(connection.uri, connection.options, function(err, db) {
+          assert(err, 'No error on wrong credentials.');
+          done();
+        });
+      });
+    });
+  });
+
+  describe('Replicaset', function() {
+    describe('SCRAM-SHA-1', function() {
+      var opts = {
+        action: 'start',
+        name: 'replicaset-scram-sha-1',
+        port: 28000,
+        auth_mechanism: 'SCRAM_SHA_1',
+        username: 'adminUser',
+        password: 'adminPass',
+        topology: 'replicaset'
+      };
+      var tmpobj = null;
+
+      before(function(done) {
+        tmpDir = tmp.dirSync({unsafeCleanup:true});
+        opts.dbpath = tmpDir.name;
+        debug('DB Dir: ', tmpDir.name);
 
         tmpKeyFile = tmp.fileSync();
         fs.writeFileSync(tmpKeyFile.name, 'testkeyfiledata');
-        debug("KeyFile: ", tmpKeyFile.name);
+        debug('KeyFile: ', tmpKeyFile.name);
         opts.keyFile = tmpKeyFile.name;
 
         run(opts, function(err) {
@@ -58,6 +118,76 @@ describe('Integration Tests', function() {
           mongodb_username: 'adminUser',
           mongodb_password: 'adminPass'
         });
+        MongoClient.connect(connection.uri, connection.options, function(err, db) {
+          assert.ifError(err);
+          done();
+        });
+      });
+
+     it('should not connect to a mongod with scram-sha-1 enabled and the wrong username/password', function(done) {
+        var connection = new Connection({
+          port: opts.port,
+          mongodb_username: 'adminUser',
+          mongodb_password: 'adminPassWrong'
+        });
+        MongoClient.connect(connection.uri, connection.options, function(err, db) {
+          assert(err, 'No error on wrong credentials.');
+          done();
+        });
+      });
+    });
+  });
+
+  describe('Cluster', function() {
+    describe('SCRAM-SHA-1', function() {
+      var opts = {
+        action: 'start',
+        name: 'cluster-scram-sha-1',
+        shardPort: 29000,
+        configPort: 29100,
+        port: 29200,
+        shards: 3,
+        auth_mechanism: 'SCRAM_SHA_1',
+        username: 'adminUser',
+        password: 'adminPass',
+        topology: 'cluster'
+      };
+      var tmpobj = null;
+
+      before(function(done) {
+        tmpDir = tmp.dirSync({unsafeCleanup:true});
+        opts.dbpath = tmpDir.name;
+        debug('DB Dir: ', tmpDir.name);
+
+        tmpKeyFile = tmp.fileSync();
+        fs.writeFileSync(tmpKeyFile.name, 'testkeyfiledata');
+        debug('KeyFile: ', tmpKeyFile.name);
+        opts.keyFile = tmpKeyFile.name;
+
+        run(opts, function(err) {
+          if (err) return done(err);
+          done();
+        });
+      });
+
+      /*after(function(done) {
+        opts.action = 'stop';
+        run(opts, function(err) {
+          if (err) return done(err);
+          //tmpDir.removeCallback();
+          //tmpKeyFile.removeCallback();
+          done();
+        });
+      });*/
+
+      it('should connect to a mongod with scram-sha-1 enabled', function(done) {
+        var connection = new Connection({
+          port: opts.port,
+          mongodb_username: 'adminUser',
+          mongodb_password: 'adminPass'
+        });
+        console.log(connection.uri);
+        console.log(connection.options);
         MongoClient.connect(connection.uri, connection.options, function(err, db) {
           assert.ifError(err);
           done();
