@@ -134,11 +134,11 @@ assign(derived, {
 assign(props, {
   mongodb_username: {
     type: 'string',
-    default: null
+    default: undefined
   },
   mongodb_password: {
     type: 'string',
-    default: null
+    default: undefined
   },
   /**
    * The database name associated with the user's credentials.
@@ -183,7 +183,7 @@ assign(props, {
    */
   kerberos_principal: {
     type: 'string',
-    default: null
+    default: undefined
   },
   /**
    * You can optionally include a password for a kerberos connection.
@@ -194,7 +194,7 @@ assign(props, {
    */
   kerberos_password: {
     type: 'string',
-    default: null
+    default: undefined
   }
 });
 
@@ -220,7 +220,7 @@ assign(props, {
    */
   ssl_ca: {
     type: 'array',
-    default: null
+    default: undefined
   },
 
   /**
@@ -229,7 +229,7 @@ assign(props, {
    */
   ssl_cert: {
     type: 'string',
-    default: null
+    default: undefined
   },
   /**
    * String or buffer containing the certificate private key we wish to present
@@ -237,7 +237,7 @@ assign(props, {
    */
   ssl_private_key: {
     type: 'string',
-    default: null
+    default: undefined
   },
   /**
    * String or buffer containing the certificate password
@@ -245,7 +245,7 @@ assign(props, {
    */
   ssl_private_key_password: {
     type: 'string',
-    default: null
+    default: undefined
   }
 });
 
@@ -385,6 +385,26 @@ Connection = AmpersandModel.extend({
   idAttribute: 'instance_id',
   props: props,
   derived: derived,
+  initialize: function(attrs) {
+    attrs = attrs || {};
+    debug('initialize', attrs);
+    this.parse(attrs);
+  },
+  parse: function(attrs) {
+    debug('parsing `%j`', attrs);
+    if (attrs.authentication !== 'MONGODB') {
+      attrs.mongodb_database_name = undefined;
+    }
+    if (attrs.authentication !== 'KERBEROS') {
+      attrs.kerberos_service_name = undefined;
+    }
+
+    if (!attrs.ssl) {
+      attrs.ssl_validate = undefined;
+    }
+    debug('parse result `%j`', attrs);
+    return attrs;
+  },
   validate: function(attrs) {
     debug('validating...');
     try {
