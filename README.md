@@ -15,22 +15,33 @@ npm install --save mongodb-connection-model
 var Connection = require('mongodb-connection-model');
 ```
 
-### Metadata
+## Properties
 
 - `hostname` (optional, String) ... Hostname of a MongoDB Instance [Default: `localhost`].
 - `port` (optional, Number) ... TCP port of a MongoDB Instance [Default: `27017`].
 - `name` (optional, String) ... User specified name [Default: `My MongoDB`].
 
-### Authentication
+## Derived Properties
+
+- `instance_id` (String) ... The mongoscope `instance_id` [Default: `localhost:27017`].
+- `driver_url` (String) ... The first argument `mongoscope-server` passes to `mongodb.connect` [Default: `mongodb://localhost:27017/?slaveOk=true`].
+- `driver_options` (Object) ... The second argument `mongoscope-server` passes to `mongodb.connect` [Default: `{}`].
+
+
+## Traits
+
+It's useful to think of the remaining properties as two primary traits: `authentication` and `ssl`.
+
+### Trait: Authentication
 
 - `authentication` (optional, String) ... The desired authetication strategy [Default: `NONE`]
   - `NONE` Use no authentication.
-  - `MONGODB` Allow the driver to autodetect and select SCRAM-SHA-1 or MONGODB-CR depending on server capabilities.
+  - `MONGODB` Allow the driver to auto-detect and select SCRAM-SHA-1 or MONGODB-CR depending on server capabilities.
   - `KERBEROS`
   - `X509`
   - `LDAP`
 
-#### 1. No Authentication
+#### A1. No Authentication
 
 ```javascript
 var model = new Connection({
@@ -43,7 +54,7 @@ console.log(new Connection().driver_url);
 >>> 'mongodb://localhost:27017?slaveOk=true'
 ```
 
-#### 2. MongoDB Authentication
+#### A2. MongoDB
 
 - `mongodb_username` (**required**, String)
 - `mongodb_password` (**required**, String)
@@ -59,7 +70,7 @@ console.log(model.driver_url);
 >>> 'mongodb://arlo:B%40sil@localhost:27017?slaveOk=true&authSource=admin'
 ```
 
-#### 3. Kerberos Authentication
+#### A3. Kerberos
 
 ![][enterprise_img]
 
@@ -78,44 +89,71 @@ console.log(model.driver_url);
 >>> 'mongodb://arlo%2540MONGODB.PARTS@localhost:27017/kerberos?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI'
 ```
 
-#### Kerberos Windows Variant
+#### A4. Kerberos on Windows
 
-- `/#{instance}`
+> @note (imlucas): Broken out as it's own state for UX consideration.
 
 ```javascript
 var model = new Connection({
   authentication: 'KERBEROS',
   kerberos_principal: 'arlo/admin@MONGODB.PARTS',
   kerberos_password: 'B@sil',
-  kerberos_service_name: 'mongodb'
+  kerberos_service_name: 'MongoDB'
 });
 console.log(model.driver_url);
->>> 'mongodb://arlo%252Fadmin%2540MONGODB.PARTS:B%40sil@localhost:27017/kerberos?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI'
+>>> 'mongodb://arlo%252Fadmin%2540MONGODB.PARTS:B%40sil@localhost:27017/kerberos?slaveOk=true&gssapiServiceName=MongoDB&authMechanism=GSSAPI'
 ```
 
-#### 4. X509 Authentication
+#### A5. X509
 
 ![][enterprise_img] ![][coming_soon_img]
 
 [node.js driver X509 reference](http://bit.ly/mongodb-node-driver-x509)
 
-#### 5. LDAP Authentication
+#### A6. LDAP
 
 ![][enterprise_img] ![][coming_soon_img]
 
 [node.js driver LDAP reference](http://bit.ly/mongodb-node-driver-ldap)
 
-### `ssl`
+### Trait: SSL
 
 > **Note**: Not to be confused with `authentication=X509`.
 
-#### 1. No SSL
+- `ssl` (optional, String) ... The desired ssl strategy [Default: `NONE`]
+  - `NONE` No SSL.
+  - `UNVALIDATED` No validation of certificate chain.
+  - `SERVER` Driver should validate Server certificate.
+  - `ALL` Driver should validate Server certificate and present valid Certificate.
 
-#### 2. No validation of certificate chain
+#### S1. NONE
 
-#### 3. Driver should validate Server certificate
+Do not use SSL for anything.
 
-#### 4. Driver should validate Server certificate and present valid Certificate
+#### S2. UNVALIDATED
+
+Use SSL but do not perform any validation of the certificate chain.
+
+#### S3. SERVER
+
+The driver should validate the server certificate and fail to connect if validation fails.
+
+#### S4. ALL
+
+The driver must present a valid certificate and validate the server certificate.
+
+
+## Matrix
+
+| authentication:ssl |  NONE  |  UNVALIDATED  | SERVER | ALL |
+| :----------------- | :----- | :------------ | :----- | :-- |
+| NONE               |        |               |        |     |
+| MONGODB            |        |               |        |     |
+| KERBEROS           |        |               |        |     |
+| KERBEROS_WINDOWS   |        |               |        |     |
+| X509               |        |               |        |     |
+| LDAP               |        |               |        |     |
+
 
 ## Testing
 
