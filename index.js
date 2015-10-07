@@ -149,7 +149,7 @@ assign(props, {
    */
   mongodb_database_name: {
     type: 'string',
-    default: 'admin'
+    default: undefined
   }
 });
 
@@ -168,7 +168,7 @@ assign(props, {
    */
   kerberos_service_name: {
     type: 'string',
-    default: 'mongodb'
+    default: undefined
   },
   /**
    * The format of a typical Kerberos V5 principal is `primary/instance@REALM`.
@@ -347,9 +347,12 @@ assign(derived, {
     fn: function() {
       var connectionOptions = {
         uri_decode_auth: true,
-        db: {},
+        db: {
+          readPreference: 'nearest' // important!  or slaveOk=true set above no worky!
+        },
         server: {},
         replSet: {
+          ha: false,
           connectWithNoPrimary: true
         },
         mongos: {}
@@ -392,11 +395,15 @@ Connection = AmpersandModel.extend({
   },
   parse: function(attrs) {
     debug('parsing `%j`', attrs);
-    if (attrs.authentication !== 'MONGODB') {
-      attrs.mongodb_database_name = undefined;
+    if (attrs.authentication === 'MONGODB') {
+      if (!attrs.mongodb_database_name) {
+        attrs.mongodb_database_name = 'admin';
+      }
     }
-    if (attrs.authentication !== 'KERBEROS') {
-      attrs.kerberos_service_name = undefined;
+    if (attrs.authentication === 'KERBEROS') {
+      if (!attrs.kerberos_service_name) {
+        attrs.kerberos_service_name = 'mongodb';
+      }
     }
 
     if (!attrs.ssl) {
