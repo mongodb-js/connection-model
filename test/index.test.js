@@ -19,7 +19,7 @@ function isNotValidAndHasMessage(model, msg) {
  * that a user may need.
  */
 describe('mongodb-connection-model', function() {
-  describe('When ssl is true', function() {
+  describe.skip('When ssl is true', function() {
     it('should not allow specifying ssl_validate without turning on ssl', function() {
       isNotValidAndHasMessage(new Connection({
         ssl_validate: true

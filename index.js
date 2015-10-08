@@ -3,6 +3,10 @@ var format = require('util').format;
 var AmpersandModel = require('ampersand-model');
 var AmpersandCollection = require('ampersand-rest-collection');
 var assign = require('lodash.assign');
+var contains = require('lodash.contains');
+var pick = require('lodash.pick');
+var omit = require('lodash.omit');
+var parse = require('mongodb-url');
 var debug = require('debug')('mongodb-connection-model');
 
 var Connection = {};
@@ -114,6 +118,22 @@ var AUTH_MECHANISM_TO_AUTHENTICATION = {
   PLAIN: 'LDAP'
 };
 
+var AUTHENTICATION_TO_FIELD_NAMES = {
+  NONE: [],
+  MONGODB: [
+    'mongodb_username', // required
+    'mongodb_password', // required
+    'mongodb_database_name' // optional
+  ],
+  KERBEROS: [
+    'kerberos_principal', // required
+    'kerberos_password', // optional
+    'kerberos_service_name' // optional
+  ],
+  X509: [],
+  LDAP: []
+};
+
 assign(derived, {
   /**
    * Converts the value of `authentication` (for humans)
@@ -203,51 +223,50 @@ assign(props, {
  *
  * @note (imlucas): Not to be confused with `authentication=X509`!
  */
-
-assign(props, {
-  ssl: {
-    type: 'boolean',
-    default: false
-  },
-  ssl_validate: {
-    type: 'boolean',
-    default: false
-  },
-
-  /**
-   * Array of valid certificates either as Buffers or Strings
-   * (needs to have a mongod server with ssl support, 2.4 or higher).
-   */
-  ssl_ca: {
-    type: 'array',
-    default: undefined
-  },
-
-  /**
-   * String or buffer containing the certificate we wish to present
-   * (needs to have a mongod server with ssl support, 2.4 or higher).
-   */
-  ssl_cert: {
-    type: 'string',
-    default: undefined
-  },
-  /**
-   * String or buffer containing the certificate private key we wish to present
-   * (needs to have a mongod server with ssl support, 2.4 or higher).
-   */
-  ssl_private_key: {
-    type: 'string',
-    default: undefined
-  },
-  /**
-   * String or buffer containing the certificate password
-   * (needs to have a mongod server with ssl support, 2.4 or higher).
-   */
-  ssl_private_key_password: {
-    type: 'string',
-    default: undefined
-  }
-});
+// assign(props, {
+//   ssl: {
+//     type: 'boolean',
+//     default: false
+//   },
+//   ssl_validate: {
+//     type: 'boolean',
+//     default: false
+//   },
+//
+//   /**
+//    * Array of valid certificates either as Buffers or Strings
+//    * (needs to have a mongod server with ssl support, 2.4 or higher).
+//    */
+//   ssl_ca: {
+//     type: 'array',
+//     default: undefined
+//   },
+//
+//   /**
+//    * String or buffer containing the certificate we wish to present
+//    * (needs to have a mongod server with ssl support, 2.4 or higher).
+//    */
+//   ssl_cert: {
+//     type: 'string',
+//     default: undefined
+//   },
+//   /**
+//    * String or buffer containing the certificate private key we wish to present
+//    * (needs to have a mongod server with ssl support, 2.4 or higher).
+//    */
+//   ssl_private_key: {
+//     type: 'string',
+//     default: undefined
+//   },
+//   /**
+//    * String or buffer containing the certificate password
+//    * (needs to have a mongod server with ssl support, 2.4 or higher).
+//    */
+//   ssl_private_key_password: {
+//     type: 'string',
+//     default: undefined
+//   }
+// });
 
 /**
  * ## Driver Connection Options
@@ -300,7 +319,7 @@ assign(derived, {
           auth: format('%s:%s', this.mongodb_username, this.mongodb_password),
           query: {
             slaveOk: 'true',
-            authSource: this.mongodb_database_name
+            authSource: this.mongodb_database_name || 'admin'
           }
         });
         return toURL(req);
@@ -345,10 +364,11 @@ assign(derived, {
       'ssl_private_key_password'
     ],
     fn: function() {
-      var connectionOptions = {
+      var opts = {
         uri_decode_auth: true,
         db: {
-          readPreference: 'nearest' // important!  or slaveOk=true set above no worky!
+          // important!  or slaveOk=true set above no worky!
+          readPreference: 'nearest'
         },
         server: {},
         replSet: {
@@ -358,21 +378,22 @@ assign(derived, {
         mongos: {}
       };
 
-      if (this.ssl_validate) {
-        connectionOptions.server.sslValidate = true;
-      }
-      if (this.ssl_ca) {
-        connectionOptions.server.sslCA = this.ssl_ca;
-      }
-      if (this.ssl_cert) {
-        connectionOptions.server.sslCert = this.ssl_cert;
-      }
-      if (this.ssl_private_key) {
-        connectionOptions.server.sslKey = this.ssl_private_key;
-      }
-      if (this.ssl_private_key_password) {
-        connectionOptions.server.sslPass = this.ssl_private_key_password;
-      }
+      // @todo (imlucas): Circle back on SSL after compass 0.4.3.
+      // if (this.ssl_validate) {
+      //   opts.server.sslValidate = true;
+      // }
+      // if (this.ssl_ca) {
+      //   opts.server.sslCA = this.ssl_ca;
+      // }
+      // if (this.ssl_cert) {
+      //   opts.server.sslCert = this.ssl_cert;
+      // }
+      // if (this.ssl_private_key) {
+      //   opts.server.sslKey = this.ssl_private_key;
+      // }
+      // if (this.ssl_private_key_password) {
+      //   opts.server.sslPass = this.ssl_private_key_password;
+      // }
       return connectionOptions;
     }
   }
@@ -405,10 +426,6 @@ Connection = AmpersandModel.extend({
         attrs.kerberos_service_name = 'mongodb';
       }
     }
-
-    if (!attrs.ssl) {
-      attrs.ssl_validate = undefined;
-    }
     debug('parse result `%j`', attrs);
     return attrs;
   },
@@ -426,23 +443,24 @@ Connection = AmpersandModel.extend({
       /**
        * Enforce constraints for SSL.
        */
-      if (!attrs.ssl) {
-        if (attrs.ssl_validate) {
-          throw new TypeError('The ssl_validate field requires ssl.');
-        }
-        if (attrs.ssl_ca) {
-          throw new TypeError('The ssl_ca field requires ssl.');
-        }
-        if (attrs.ssl_cert) {
-          throw new TypeError('The ssl_cert field requires ssl.');
-        }
-        if (attrs.ssl_private_key) {
-          throw new TypeError('The ssl_private_key field requires ssl.');
-        }
-        if (attrs.ssl_private_key_password) {
-          throw new TypeError('The ssl_private_key_password field requires ssl.');
-        }
-      }
+      // @todo (imlucas): Circle back on SSL after compass 0.4.3.
+      // if (!attrs.ssl) {
+      //   if (attrs.ssl_validate) {
+      //     throw new TypeError('The ssl_validate field requires ssl.');
+      //   }
+      //   if (attrs.ssl_ca) {
+      //     throw new TypeError('The ssl_ca field requires ssl.');
+      //   }
+      //   if (attrs.ssl_cert) {
+      //     throw new TypeError('The ssl_cert field requires ssl.');
+      //   }
+      //   if (attrs.ssl_private_key) {
+      //     throw new TypeError('The ssl_private_key field requires ssl.');
+      //   }
+      //   if (attrs.ssl_private_key_password) {
+      //     throw new TypeError('The ssl_private_key_password field requires ssl.');
+      //   }
+      // }
 
       /**
        * Enforce constraints for Kerberos.
@@ -472,11 +490,28 @@ Connection = AmpersandModel.extend({
             + 'using KERBEROS for authentication.'));
         }
       }
-    } catch (err) {
-      debug('validation failed!', err);
-      return err;
-    }
+    } catch (err) {return err;}
     debug('attributes are valid');
+  },
+  serialize: function(options) {
+    options = options || {};
+    options.credentials = options.credentials || false;
+
+    var credentialKeys = AUTHENTICATION_TO_FIELD_NAMES[this.authentication];
+    var res = AmpersandModel.prototype.serialize.call(this, options);
+    var args = [res];
+    args.push.apply(args, credentialKeys);
+
+    if (options.credentials) {
+      if (credentialKeys.length === 0) return undefined;
+      return pick.apply(null, args);
+    }
+
+    if (credentialKeys.length == 0) {
+      return res;
+    }
+
+    return omit.apply(null, args);
   }
 });
 
@@ -493,37 +528,31 @@ Connection = AmpersandModel.extend({
  * @param {String} [url]
  * @return {Connection}
  */
-// @todo (imlucas): Grab url_parser.js from driver and update mongodb-url.
-// Connection.from = function(url) {
-//   if (!url) {
-//     url = 'mongodb://localhost:27017';
-//   }
-//
-//   var parsed = require('mongodb-url').parse(url);
-//   var attrs = {};
-//
-//   if (parsed.username && !parsed.authMechanism) {
-//     parsed.authMechanism = 'DEFAULT';
-//   }
-//
-//   attrs.authentication = parsed.authMechanism[AUTH_MECHANISM_TO_AUTHENTICATION];
-//   return new Connection(attrs);
-// };
+Connection.from = function(url) {
+  if (!url) {
+    url = 'mongodb://localhost:27017';
+  }
 
-var AUTHENTICATION_TO_FIELD_NAMES = {
-  NONE: [],
-  MONGODB: [
-    'mongodb_username', // required
-    'mongodb_password', // required
-    'mongodb_database_name' // optional
-  ],
-  KERBEROS: [
-    'kerberos_principal', // required
-    'kerberos_password', // optional
-    'kerberos_service_name' // optional
-  ],
-  X509: [],
-  LDAP: []
+  var parsed = parse(url);
+  var attrs = {
+    hostname: parsed.servers[0].host,
+    port: parsed.servers[0].port
+  };
+
+  if (parsed.username && !parsed.authMechanism) {
+    parsed.authMechanism = 'DEFAULT';
+  }
+
+  if (parsed.authMechanism) {
+    attrs.authentication = parsed.authMechanism[AUTH_MECHANISM_TO_AUTHENTICATION];
+
+    if (contains(['DEFAULT', 'SCRAM-SHA-1', 'MONGODB-CR'], attrs.authentication)) {
+      attrs.mongodb_username = parsed.username;
+      attrs.mongodb_password = parsed.password;
+      attrs.mongodb_database_name = parsed.dbName;
+    }
+  }
+  return new Connection(attrs);
 };
 
 /**
