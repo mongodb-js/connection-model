@@ -34,7 +34,7 @@
     "mongodb-url": "^1.0.2"
   },
   "devDependencies": {
-    "electron-mocha": "^0.6.1",
+    "electron-mocha": "^0.6.2",
     "electron-prebuilt": "^0.34.3",
     "eslint-config-mongodb-js": "^1.0.5",
     "mocha": "^2.3.3",
