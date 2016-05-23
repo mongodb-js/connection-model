@@ -536,6 +536,19 @@ describe('mongodb-connection-model', function() {
   });
 
   describe('ssh tunnel', function() {
+    describe('#driver_url', function() {
+      var c = new Connection({
+        hostname: '127.0.0.1',
+        ssh_tunnel: 'USER_PASSWORD',
+        ssh_tunnel_hostname: '127.0.0.1',
+        ssh_tunnel_port: '5000',
+        ssh_tunnel_username: 'username',
+        ssh_tunnel_password: 'password'
+      });
+      it('replaces the host and port with localhost and the ssh tunnel port', function() {
+        assert.equal(c.driver_url, 'mongodb://localhost:5000/?slaveOk=true');
+      });
+    });
     describe('#validate', function() {
       context('when ssh_tunnel is NONE', function() {
         var c = new Connection({
