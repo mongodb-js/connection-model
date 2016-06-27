@@ -535,6 +535,15 @@ describe('mongodb-connection-model', function() {
         });
       });
     });
+    describe('When hostname ends with `mongodb.net`', function() {
+      /**
+       * @see http://jira.mongodb.org/browse/INT-1517
+       */
+      it('should default driver ssl to unvalidated', function() {
+        var c = Connection.from('mongodb://data.mongodb.net/');
+        assert.equal(c.driver_url, 'mongodb://data.mongodb.net:27017/?slaveOk=true&ssl=true');
+      });
+    });
   });
 
   describe('ssh tunnel', function() {
