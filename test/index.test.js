@@ -4,7 +4,7 @@ var loadOptions = Connection.connect.loadOptions;
 var parse = require('mongodb-url');
 var driverParse = require('mongodb/lib/url_parser');
 var fixture = require('mongodb-connection-fixture');
-var clone = require('lodash.clone');
+var _ = require('lodash');
 var format = require('util').format;
 var fs = require('fs');
 var path = require('path');
@@ -460,7 +460,7 @@ describe('mongodb-connection-model', function() {
           'mongodb://localhost:27017/?slaveOk=true&ssl=true');
       });
       it('should produce the correct driver options', function() {
-        var expected = clone(Connection.DRIVER_OPTIONS_DEFAULT);
+        var expected = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
         expected.server = {
           sslCA: [fixture.ssl.ca],
           sslValidate: true
@@ -494,7 +494,7 @@ describe('mongodb-connection-model', function() {
         });
 
         it('should produce the correct driver_options', function() {
-          var expected = clone(Connection.DRIVER_OPTIONS_DEFAULT);
+          var expected = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
           expected.server = {
             sslCA: [fixture.ssl.ca],
             sslCert: fixture.ssl.server,
@@ -523,7 +523,7 @@ describe('mongodb-connection-model', function() {
         });
 
         it('should produce the correct driver_options', function() {
-          var expected = clone(Connection.DRIVER_OPTIONS_DEFAULT);
+          var expected = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
           expected.server = {
             sslCA: [fixture.ssl.ca],
             sslCert: fixture.ssl.server,
@@ -623,6 +623,7 @@ describe('mongodb-connection-model', function() {
           });
 
           it('maps ssh_tunnel_identity_file -> privateKey', function() {
+            /* eslint no-sync: 0 */
             assert.equal(options.privateKey.toString(), fs.readFileSync(fileName).toString());
           });
 
