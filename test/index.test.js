@@ -4,7 +4,7 @@ var loadOptions = Connection.connect.loadOptions;
 var parse = require('mongodb-url');
 var driverParse = require('mongodb/lib/url_parser');
 var fixture = require('mongodb-connection-fixture');
-var clone = require('lodash.clone');
+var _ = require('lodash');
 var format = require('util').format;
 var fs = require('fs');
 var path = require('path');
@@ -460,7 +460,7 @@ describe('mongodb-connection-model', function() {
           'mongodb://localhost:27017/?slaveOk=true&ssl=true');
       });
       it('should produce the correct driver options', function() {
-        var expected = clone(Connection.DRIVER_OPTIONS_DEFAULT);
+        var expected = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
         expected.server = {
           sslCA: [fixture.ssl.ca],
           sslValidate: true
@@ -494,7 +494,7 @@ describe('mongodb-connection-model', function() {
         });
 
         it('should produce the correct driver_options', function() {
-          var expected = clone(Connection.DRIVER_OPTIONS_DEFAULT);
+          var expected = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
           expected.server = {
             sslCA: [fixture.ssl.ca],
             sslCert: fixture.ssl.server,
@@ -523,7 +523,7 @@ describe('mongodb-connection-model', function() {
         });
 
         it('should produce the correct driver_options', function() {
-          var expected = clone(Connection.DRIVER_OPTIONS_DEFAULT);
+          var expected = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
           expected.server = {
             sslCA: [fixture.ssl.ca],
             sslCert: fixture.ssl.server,
@@ -533,6 +533,15 @@ describe('mongodb-connection-model', function() {
           };
           assert.deepEqual(c.driver_options, expected);
         });
+      });
+    });
+    describe('When hostname ends with `mongodb.net`', function() {
+      /**
+       * @see http://jira.mongodb.org/browse/INT-1517
+       */
+      it('should default driver ssl to unvalidated', function() {
+        var c = Connection.from('mongodb://data.mongodb.net/');
+        assert.equal(c.driver_url, 'mongodb://data.mongodb.net:27017/?slaveOk=true&ssl=true');
       });
     });
   });
@@ -623,6 +632,7 @@ describe('mongodb-connection-model', function() {
           });
 
           it('maps ssh_tunnel_identity_file -> privateKey', function() {
+            /* eslint no-sync: 0 */
             assert.equal(options.privateKey.toString(), fs.readFileSync(fileName).toString());
           });
 
