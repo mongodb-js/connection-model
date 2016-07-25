@@ -17,7 +17,7 @@
   "scripts": {
     "ci": "npm run check && npm test",
     "test": "mocha",
-    "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
+    "fmt": "mongodb-js-fmt ./*.js lib/*.js ./test/*.js",
     "check": "mongodb-js-precommit"
   },
   "precommit": [
