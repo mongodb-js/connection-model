@@ -1,9 +1,32 @@
 var assert = require('assert');
 var Connection = require('../');
+var createSSHTunnel = require('../lib/ssh-tunnel');
 var fs = require('fs');
 var path = require('path');
 
 describe('ssh_tunnel', function() {
+  it.skip('should error when ssh fails', function(done) {
+    var c = new Connection({
+      hostname: '127.0.0.1',
+      ssh_tunnel: 'USER_PASSWORD',
+      ssh_tunnel_hostname: 'my.ssh-server.com',
+      ssh_tunnel_username: 'my-user',
+      ssh_tunnel_password: 'password'
+    });
+
+    var tunnel = createSSHTunnel(c, function(err) {
+      if (err) {
+        return done(err);
+      }
+      tunnel.test(function(_err) {
+        if (!_err) {
+          done(new Error('Should have failed to connect'));
+        }
+        done();
+      });
+    });
+  });
+
   describe('ssh_tunnel_port', function() {
     it('should have the default value', function() {
       var c = new Connection();
