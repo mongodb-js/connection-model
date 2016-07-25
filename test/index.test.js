@@ -538,20 +538,6 @@ describe('mongodb-connection-model', function() {
   });
 
   describe('ssh tunnel', function() {
-    describe('#driver_url', function() {
-      var c = new Connection({
-        hostname: '127.0.0.1',
-        ssh_tunnel: 'USER_PASSWORD',
-        ssh_tunnel_hostname: '127.0.0.1',
-        ssh_tunnel_port: 5000,
-        ssh_tunnel_username: 'username',
-        ssh_tunnel_password: 'password'
-      });
-      it('replaces the host and port with localhost and the ssh tunnel port', function() {
-        assert.equal(c.driver_url, 'mongodb://localhost:5000/?slaveOk=true');
-      });
-    });
-
     describe('#ssh_tunnel_options', function() {
       context('when ssh_tunnel is NONE', function() {
         var c = new Connection({
@@ -575,24 +561,20 @@ describe('mongodb-connection-model', function() {
           ssh_tunnel_password: 'password'
         }).ssh_tunnel_options;
 
-        it('maps ssh_tunnel_hostname -> host', function() {
-          assert.equal(options.host, 'my.ssh-server.com');
-        });
-
         it('maps ssh_tunnel_username -> username', function() {
           assert.equal(options.username, 'my-user');
         });
 
-        it('maps hostname -> dstHost', function() {
-          assert.equal(options.dstHost, 'mongodb.my-internal-host.com');
+        it('maps ssh_tunnel_hostname -> dstHost', function() {
+          assert.equal(options.dstHost, 'my.ssh-server.com');
         });
 
         it('maps port -> dstPort', function() {
           assert.equal(options.dstPort, 27000);
         });
 
-        it('maps ssh_tunnel_port -> sshPort', function() {
-          assert.equal(options.sshPort, 3000);
+        it('maps ssh_tunnel_port -> port', function() {
+          assert.equal(options.port, 3000);
         });
 
         it('maps ssh_tunnel_password -> password', function() {
@@ -614,10 +596,6 @@ describe('mongodb-connection-model', function() {
             ssh_tunnel_passphrase: 'password'
           }).ssh_tunnel_options;
 
-          it('maps ssh_tunnel_hostname -> host', function() {
-            assert.equal(options.host, 'my.ssh-server.com');
-          });
-
           it('maps ssh_tunnel_username -> username', function() {
             assert.equal(options.username, 'my-user');
           });
@@ -627,15 +605,15 @@ describe('mongodb-connection-model', function() {
           });
 
           it('maps hostname -> dstHost', function() {
-            assert.equal(options.dstHost, 'mongodb.my-internal-host.com');
+            assert.equal(options.dstHost, 'my.ssh-server.com');
           });
 
           it('maps port -> dstPort', function() {
             assert.equal(options.dstPort, 27000);
           });
 
-          it('maps ssh_tunnel_port -> sshPort', function() {
-            assert.equal(options.sshPort, 3000);
+          it('maps ssh_tunnel_port -> port', function() {
+            assert.equal(options.port, 3000);
           });
 
           it('maps ssh_tunnel_passphrase -> password', function() {
@@ -655,10 +633,6 @@ describe('mongodb-connection-model', function() {
             ssh_tunnel_port: 3000
           }).ssh_tunnel_options;
 
-          it('maps ssh_tunnel_hostname -> host', function() {
-            assert.equal(options.host, 'my.ssh-server.com');
-          });
-
           it('maps ssh_tunnel_username -> username', function() {
             assert.equal(options.username, 'my-user');
           });
@@ -667,8 +641,8 @@ describe('mongodb-connection-model', function() {
             assert.equal(options.privateKey.toString(), fs.readFileSync(fileName).toString());
           });
 
-          it('maps hostname -> dstHost', function() {
-            assert.equal(options.dstHost, 'mongodb.my-internal-host.com');
+          it('maps ssh_tunnel_hostname -> dstHost', function() {
+            assert.equal(options.dstHost, 'my.ssh-server.com');
           });
 
           it('maps port -> dstPort', function() {
@@ -676,7 +650,7 @@ describe('mongodb-connection-model', function() {
           });
 
           it('maps ssh_tunnel_port -> sshPort', function() {
-            assert.equal(options.sshPort, 3000);
+            assert.equal(options.port, 3000);
           });
         });
       });
