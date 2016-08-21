@@ -36,7 +36,7 @@
     "tunnel-ssh": "^2.1.1"
   },
   "devDependencies": {
-    "eslint-config-mongodb-js": "^2.0.0",
+    "eslint-config-mongodb-js": "^2.1.1",
     "mocha": "^2.5.2",
     "mongodb-connection-fixture": "^0.0.13",
     "mongodb-instance-model": "^3.0.0",
