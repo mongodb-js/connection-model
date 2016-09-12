@@ -442,13 +442,13 @@ describe('mongodb-connection-model', function() {
           'mongodb://localhost:27017/?slaveOk=true&ssl=true');
       });
       it('should produce the correct driver options', function() {
-        _.assign(options, {
-          server: {
-            checkServerIdentity: false,
-            sslValidate: false
-          }
-        });
+        var options = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
+        options.server = {
+          checkServerIdentity: false,
+          sslValidate: false
+        };
         assert.deepEqual(sslUnvalidated.driver_options, options);
+      });
     });
 
     describe('When ssl is SERVER', function() {
