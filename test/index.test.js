@@ -451,6 +451,25 @@ describe('mongodb-connection-model', function() {
       });
     });
 
+    describe('When ssl is IFAVAILABLE', function() {
+      var sslUnvalidated = new Connection({
+        ssl: 'IFAVAILABLE'
+      });
+
+      it('should produce the correct driver URL', function() {
+        assert.equal(sslUnvalidated.driver_url,
+          'mongodb://localhost:27017/?slaveOk=true&ssl=true');
+      });
+      it('should produce the correct driver options', function() {
+        var options = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
+        options.server = {
+          checkServerIdentity: false,
+          sslValidate: true
+        };
+        assert.deepEqual(sslUnvalidated.driver_options, options);
+      });
+    });
+
     describe('When ssl is SERVER', function() {
       var sslServer = new Connection({
         ssl: 'SERVER',
