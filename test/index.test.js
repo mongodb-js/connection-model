@@ -29,7 +29,7 @@ describe('mongodb-connection-model', function() {
       it('should return the correct URL for the driver', function() {
         var c = new Connection();
         assert.equal(c.driver_url,
-          'mongodb://localhost:27017/?slaveOk=true&ssl=prefer');
+          'mongodb://localhost:27017/?slaveOk=true');
 
         assert.doesNotThrow(function() {
           parse(c.driver_url);
@@ -88,7 +88,7 @@ describe('mongodb-connection-model', function() {
 
         it('should urlencode credentials', function() {
           assert.equal(c.driver_url,
-            'mongodb://%40rlo:w%40of@localhost:27017/?slaveOk=true&authSource=admin&ssl=prefer');
+            'mongodb://%40rlo:w%40of@localhost:27017/?slaveOk=true&authSource=admin');
         });
 
         it('should be parse in the browser', function() {
@@ -141,7 +141,7 @@ describe('mongodb-connection-model', function() {
 
           it('should urlencode credentials', function() {
             assert.equal(c.driver_url,
-              'mongodb://arlo:w%40of@localhost:27017/ldap?slaveOk=true&authMechanism=PLAIN&ssl=prefer');
+              'mongodb://arlo:w%40of@localhost:27017/ldap?slaveOk=true&authMechanism=PLAIN');
           });
 
           it('should be parse in the browser', function() {
@@ -188,7 +188,7 @@ describe('mongodb-connection-model', function() {
             assert.equal(c.driver_url,
               'mongodb://CN%253Dclient%252COU%253Darlo%252CO%253DMongoDB%252CL%253DPhiladelphia'
               + '%252CST%253DPennsylvania%252CC%253DUS@localhost:27017/'
-              + '?slaveOk=true&authMechanism=MONGODB-X509&ssl=prefer');
+              + '?slaveOk=true&authMechanism=MONGODB-X509');
           });
 
           it('should be parse in the browser', function() {
