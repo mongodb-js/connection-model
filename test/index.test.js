@@ -132,6 +132,11 @@ describe('mongodb-connection-model', function() {
         assert.equal(c.ssl, 'UNVALIDATED');
         assert.equal(c.mongodb_password, userPass);
       });
+      it('does not false positive on hi.mongodb.net.my.domain.com', function() {
+        var c = Connection.from(
+            atlasConnection.replace(/mongodb.net/g, 'hi.mongodb.net.my.domain.com'));
+        assert.equal(c.ssl, 'NONE');  // Whatever the Compass default is
+      });
     });
 
     describe('enterprise', function() {
