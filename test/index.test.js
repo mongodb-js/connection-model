@@ -104,6 +104,30 @@ describe('mongodb-connection-model', function() {
         });
       });
     });
+
+    describe('ATLAS - mongodb.net', function() {
+      var atlasConnection = 'mongodb://ADMINUSER:PASSWORD@' +
+          'a-compass-atlas-test-shard-00-00-vll9l.mongodb.net:38128,' +
+          'a-compass-atlas-test-shard-00-01-vll9l.mongodb.net:38128,' +
+          'a-compass-atlas-test-shard-00-02-vll9l.mongodb.net:38128/admin?' +
+          'ssl=true&replicaSet=a-compass-atlas-test-shard-0&authSource=admin';
+      it('defaults SSL to UNVALIDATED', function() {
+        var c = Connection.from(atlasConnection);
+        // In future, we should ship our own CA with Compass
+        // so we can default to 'SERVER'-validated.
+        // This is a step in the right direction so let's take the easy wins.
+        assert.equal(c.ssl, 'UNVALIDATED');
+      });
+      it('clears the default PASSWORD', function() {
+        // UX: We clear the default string 'PASSWORD' from the Atlas GUI
+        // so the user is forced to enter their own password
+        // rather than getting trapped with the error:
+        // "Could not connect to MongoDB on the provided host and port"
+        var c = Connection.from(atlasConnection);
+        assert.equal(c.mongodb_password, '');
+      });
+    });
+
     describe('enterprise', function() {
       describe('LDAP', function() {
         it('should set authentication to LDAP', function() {
