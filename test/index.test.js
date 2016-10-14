@@ -126,6 +126,12 @@ describe('mongodb-connection-model', function() {
         var c = Connection.from(atlasConnection);
         assert.equal(c.mongodb_password, '');
       });
+      it('works with a non-default secure password', function() {
+        var userPass = '6NuZPtHCrjYBAWnI7Iq6jvtsdJx67X0';
+        var c = Connection.from(atlasConnection.replace('PASSWORD', userPass));
+        assert.equal(c.ssl, 'UNVALIDATED');
+        assert.equal(c.mongodb_password, userPass);
+      });
     });
 
     describe('enterprise', function() {
