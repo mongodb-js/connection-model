@@ -137,6 +137,10 @@ describe('mongodb-connection-model', function() {
             atlasConnection.replace(/mongodb.net/g, 'hi.mongodb.net.my.domain.com'));
         assert.equal(c.ssl, 'NONE');  // Whatever the Compass default is
       });
+      it('is case insensitive, see RFC4343', function() {
+        var c = Connection.from(atlasConnection.replace(/mongodb.net/g, 'mOnGOdB.NeT'));
+        assert.equal(c.ssl, 'UNVALIDATED');
+      });
     });
 
     describe('enterprise', function() {
