@@ -278,4 +278,16 @@ describe('ssh_tunnel', function() {
       });
     });
   });
+
+  describe('#functional', function() {
+    describe('local');
+    describe('aws', function() {
+
+    });
+    describe('key formats', function() {
+      it('should support pem');
+      it('should support ppk');
+      it('should error on unsupported formats');
+    });
+  });
 });
