@@ -280,9 +280,38 @@ describe('ssh_tunnel', function() {
   });
 
   describe('#functional', function() {
-    describe('local');
     describe('aws', function() {
+      var identityFilePath = path.join(__dirname, 'aws-identity-file.pem');
+      before(function(done) {
+        if (!process.env.AWS_SSH_TUNNEL_IDENTITY_FILE) {
+          return done();
+        }
+        fs.writeFile(identityFilePath, process.env.AWS_SSH_TUNNEL_IDENTITY_FILE, done);
+      });
 
+      after(function(done) {
+        if (!process.env.AWS_SSH_TUNNEL_IDENTITY_FILE) {
+          return done();
+        }
+        fs.unlink(identityFilePath, done);
+      });
+
+      it('should connect successfully', function(done) {
+        if (!process.env.AWS_SSH_TUNNEL_HOSTNAME) {
+          return this.skip('Set the `AWS_SSH_TUNNEL_HOSTNAME` environment variable');
+        }
+        if (!process.env.AWS_SSH_TUNNEL_IDENTITY_FILE) {
+          return this.skip('Set the `AWS_SSH_TUNNEL_IDENTITY_FILE` environment variable');
+        }
+
+        var c = new Connection({
+          ssh_tunnel: 'IDENTITY_FILE',
+          ssh_tunnel_hostname: process.env.AWS_SSH_TUNNEL_HOSTNAME,
+          ssh_tunnel_username: process.env.AWS_SSH_TUNNEL_USERNAME || 'ec2-user',
+          ssh_tunnel_identity_file: [identityFilePath]
+        });
+        Connection.connect(c, done);
+      });
     });
     describe('key formats', function() {
       it('should support pem');
