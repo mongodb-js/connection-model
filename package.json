@@ -32,6 +32,7 @@
     "kerberos": "^0.0.21",
     "lodash": "^4.16.4",
     "mongodb": "^2.2.9",
+    "mongodb-read-preference": "^1.0.6",
     "mongodb-url": "^1.0.2",
     "ssh2": "^0.5.2"
   },
