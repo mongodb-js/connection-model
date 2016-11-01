@@ -137,8 +137,8 @@ describe('ssh_tunnel', function() {
         assert.equal(options.username, 'my-user');
       });
 
-      it('maps ssh_tunnel_hostname -> dstHost', function() {
-        assert.equal(options.dstHost, 'my.ssh-server.com');
+      it('maps ssh_tunnel_hostname -> host', function() {
+        assert.equal(options.host, 'my.ssh-server.com');
       });
 
       it('maps port -> dstPort', function() {
@@ -199,7 +199,7 @@ describe('ssh_tunnel', function() {
         hostname: 'mongodb.my-internal-host.com',
         port: 27000,
         ssh_tunnel_port: 3000,
-        ssh_tunnel_passphrase: 'password'
+        ssh_tunnel_passphrase: 'passphrase'
       });
 
       it('should be valid', function() {
@@ -218,8 +218,8 @@ describe('ssh_tunnel', function() {
           assert.equal(options.privateKey.toString(), fs.readFileSync(fileName).toString());
         });
 
-        it('maps hostname -> dstHost', function() {
-          assert.equal(options.dstHost, 'my.ssh-server.com');
+        it('maps hostname -> host', function() {
+          assert.equal(options.host, 'my.ssh-server.com');
         });
 
         it('maps port -> dstPort', function() {
@@ -230,8 +230,8 @@ describe('ssh_tunnel', function() {
           assert.equal(options.port, 3000);
         });
 
-        it('maps ssh_tunnel_passphrase -> password', function() {
-          assert.equal(options.password, 'password');
+        it('maps ssh_tunnel_passphrase -> passphrase', function() {
+          assert.equal(options.passphrase, 'passphrase');
         });
       });
     });
@@ -264,8 +264,8 @@ describe('ssh_tunnel', function() {
           assert.equal(options.privateKey.toString(), fs.readFileSync(fileName).toString());
         });
 
-        it('maps ssh_tunnel_hostname -> dstHost', function() {
-          assert.equal(options.dstHost, 'my.ssh-server.com');
+        it('maps ssh_tunnel_hostname -> host', function() {
+          assert.equal(options.host, 'my.ssh-server.com');
         });
 
         it('maps port -> dstPort', function() {
