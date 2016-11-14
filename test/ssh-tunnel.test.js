@@ -141,8 +141,12 @@ describe('ssh_tunnel', function() {
         assert.equal(options.host, 'my.ssh-server.com');
       });
 
+      it('maps ssh_tunnel_hostname -> dstAddr', function() {
+        assert.equal(options.dstAddr, 'my.ssh-server.com');
+      });
+
       it('maps port -> dstPort', function() {
-        assert.equal(options.dstPort, 27000);
+        assert.equal(options.dstPort, 3000);
       });
 
       it('maps ssh_tunnel_port -> port', function() {
@@ -222,8 +226,12 @@ describe('ssh_tunnel', function() {
           assert.equal(options.host, 'my.ssh-server.com');
         });
 
+        it('maps ssh_tunnel_hostname -> dstAddr', function() {
+          assert.equal(options.dstAddr, 'my.ssh-server.com');
+        });
+
         it('maps port -> dstPort', function() {
-          assert.equal(options.dstPort, 27000);
+          assert.equal(options.dstPort, 3000);
         });
 
         it('maps ssh_tunnel_port -> port', function() {
@@ -268,8 +276,12 @@ describe('ssh_tunnel', function() {
           assert.equal(options.host, 'my.ssh-server.com');
         });
 
+        it('maps ssh_tunnel_hostname -> dstAddr', function() {
+          assert.equal(options.dstAddr, 'my.ssh-server.com');
+        });
+
         it('maps port -> dstPort', function() {
-          assert.equal(options.dstPort, 27000);
+          assert.equal(options.dstPort, 3000);
         });
 
         it('maps ssh_tunnel_port -> sshPort', function() {
