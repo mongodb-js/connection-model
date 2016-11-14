@@ -149,8 +149,8 @@ describe('ssh_tunnel', function() {
         assert.equal(options.dstPort, 3000);
       });
 
-      it('maps ssh_tunnel_port -> port', function() {
-        assert.equal(options.port, 3000);
+      it('makes port undefined to be explicit which port', function() {
+        assert.equal(options.port, undefined);
       });
 
       it('maps ssh_tunnel_password -> password', function() {
@@ -234,8 +234,8 @@ describe('ssh_tunnel', function() {
           assert.equal(options.dstPort, 3000);
         });
 
-        it('maps ssh_tunnel_port -> port', function() {
-          assert.equal(options.port, 3000);
+        it('makes port undefined to be explicit which port', function() {
+          assert.equal(options.port, undefined);
         });
 
         it('maps ssh_tunnel_passphrase -> passphrase', function() {
@@ -284,8 +284,8 @@ describe('ssh_tunnel', function() {
           assert.equal(options.dstPort, 3000);
         });
 
-        it('maps ssh_tunnel_port -> sshPort', function() {
-          assert.equal(options.port, 3000);
+        it('makes port undefined to be explicit which port', function() {
+          assert.equal(options.port, undefined);
         });
       });
     });
