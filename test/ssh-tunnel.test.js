@@ -153,6 +153,11 @@ describe('ssh_tunnel', function() {
         assert.equal(options.port, undefined);
       });
 
+      it('chooses a random localPort between 28000-32000', function() {
+        assert.ok(options.localPort >= 28000, options.localPort);
+        assert.ok(options.localPort <= 32000, options.localPort);
+      });
+
       it('maps ssh_tunnel_password -> password', function() {
         assert.equal(options.password, 'password');
       });
@@ -238,6 +243,11 @@ describe('ssh_tunnel', function() {
           assert.equal(options.port, undefined);
         });
 
+        it('chooses a random localPort between 28000-32000', function() {
+          assert.ok(options.localPort >= 28000, options.localPort);
+          assert.ok(options.localPort <= 32000, options.localPort);
+        });
+
         it('maps ssh_tunnel_passphrase -> passphrase', function() {
           assert.equal(options.passphrase, 'passphrase');
         });
@@ -286,6 +296,11 @@ describe('ssh_tunnel', function() {
 
         it('makes port undefined to be explicit which port', function() {
           assert.equal(options.port, undefined);
+        });
+
+        it('chooses a random localPort between 28000-32000', function() {
+          assert.ok(options.localPort >= 28000, options.localPort);
+          assert.ok(options.localPort <= 32000, options.localPort);
         });
       });
     });
