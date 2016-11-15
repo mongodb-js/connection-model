@@ -153,9 +153,9 @@ describe('ssh_tunnel', function() {
         assert.equal(options.port, undefined);
       });
 
-      it('chooses a random localPort between 28000-32000', function() {
-        assert.ok(options.localPort >= 28000, options.localPort);
-        assert.ok(options.localPort <= 32000, options.localPort);
+      it('chooses a random localPort between 29170-29899', function() {
+        assert.ok(options.localPort >= 29170, options.localPort);
+        assert.ok(options.localPort <= 29899, options.localPort);
       });
 
       it('maps ssh_tunnel_password -> password', function() {
@@ -243,9 +243,9 @@ describe('ssh_tunnel', function() {
           assert.equal(options.port, undefined);
         });
 
-        it('chooses a random localPort between 28000-32000', function() {
-          assert.ok(options.localPort >= 28000, options.localPort);
-          assert.ok(options.localPort <= 32000, options.localPort);
+        it('chooses a random localPort between 29170-29899', function() {
+          assert.ok(options.localPort >= 29170, options.localPort);
+          assert.ok(options.localPort <= 29899, options.localPort);
         });
 
         it('maps ssh_tunnel_passphrase -> passphrase', function() {
@@ -298,9 +298,9 @@ describe('ssh_tunnel', function() {
           assert.equal(options.port, undefined);
         });
 
-        it('chooses a random localPort between 28000-32000', function() {
-          assert.ok(options.localPort >= 28000, options.localPort);
-          assert.ok(options.localPort <= 32000, options.localPort);
+        it('chooses a random localPort between 29170-29899', function() {
+          assert.ok(options.localPort >= 29170, options.localPort);
+          assert.ok(options.localPort <= 29899, options.localPort);
         });
       });
     });
