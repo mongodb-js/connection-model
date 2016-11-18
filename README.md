@@ -255,9 +255,10 @@ connect(options, (err, db) => {
 ```
 
 The above provides the same functionality as creating the tunnel using the bash
-command below and connecting to MongoDB via another terminal. Notice that Compass
-uses a random local port each time it creates a tunnel. Using the command line,
-you'd have to replace `<random port>` with an actual port number.
+command below and connecting to MongoDB via another terminal. Notice that
+connection-model uses a random local port each time it creates a tunnel.
+Using the command line, you'd have to replace `<random port>` with an actual
+port number.
 
 ```bash
 ssh -i ~/.ssh/my-key-aws-pair.pem -L <random port>:localhost:27017 ubuntu@ec2-11-111-111-111.compute-1.amazonaws.com
