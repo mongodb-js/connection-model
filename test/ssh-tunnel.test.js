@@ -274,6 +274,14 @@ describe('ssh_tunnel', function() {
         it('maps ssh_tunnel_passphrase -> passphrase', function() {
           assert.equal(options.passphrase, 'passphrase');
         });
+
+        it('driver_url does not change after setting multiple options', function() {
+          const driverUrl = c.driver_url;
+          // I think we have to invalidate two levels of Ampersand cache here
+          c.ssh_tunnel_passphrase = 'fooPASS';
+          c.mongodb_username = 'admin';
+          assert.equal(driverUrl, c.driver_url);
+        });
       });
     });
 
