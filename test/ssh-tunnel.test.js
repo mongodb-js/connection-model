@@ -271,11 +271,6 @@ describe('ssh_tunnel', function() {
           assert.ok(options.localPort <= 29899, options.localPort);
         });
 
-        it('instance driver_url does not change', function() {
-          const driverUrl = options.driver_url;
-          assert.equal(driverUrl, options.driver_url);
-        });
-
         it('maps ssh_tunnel_passphrase -> passphrase', function() {
           assert.equal(options.passphrase, 'passphrase');
         });
