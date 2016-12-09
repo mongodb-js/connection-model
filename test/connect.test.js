@@ -30,10 +30,10 @@ describe('mongodb-connection#connect', function() {
   });
 
   describe('cloud #slow', function() {
+    const skippable = '🔒  integrations@2.6 Cluster: ';
     data.MATRIX.map(function(d) {
       it(format('should connect to `%s`', d.name), function(done) {
-        const skippable = '🔒  integrations@2.6 Cluster: Router 1';
-        if (d.name === skippable) {
+        if (/skippable/.test(d.name)) {
           console.log('Skipping test pending COMPASS-460');
           console.log(skippable);
           this.skip();
