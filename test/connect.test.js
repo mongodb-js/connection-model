@@ -30,12 +30,12 @@ describe('mongodb-connection#connect', function() {
   });
 
   describe('cloud #slow', function() {
-    const skippable = '🔒  integrations@2.6 Cluster: ';
+    const regex = /🔒  integrations@2.6 Cluster: /; // eslint-disable-line no-regex-spaces
     data.MATRIX.map(function(d) {
       it(format('should connect to `%s`', d.name), function(done) {
-        if (/skippable/.test(d.name)) {
+        if (regex.test(d.name)) {
           console.log('Skipping test pending COMPASS-460');
-          console.log(skippable);
+          console.log(regex);
           this.skip();
           return;
         }
