@@ -1,8 +1,11 @@
 /* eslint no-console:0 */
 var assert = require('assert');
+var Instance = require('mongodb-instance-model');
 var Connection = require('../');
 var connect = Connection.connect;
-var Instance = require('mongodb-instance-model');
+// var createSSHTunnel = require('../lib/ssh-tunnel');
+var mock = require('mock-require');
+var sinon = require('sinon');
 
 var shouldGetInstanceDetails = function(db, done) {
   assert(db);
@@ -26,6 +29,41 @@ describe('mongodb-connection#connect', function() {
         }
         shouldGetInstanceDetails(_db, done);
       });
+    });
+  });
+
+  it('should close ssh tunnel if connection fails', function(done) {
+    var close = sinon.spy();
+    mock('../lib/ssh-tunnel', function() {
+      console.log('mock tunnel');
+      return {close: close};
+    });
+    var MockConnection = mock.reRequire('../');
+    var mockConnect = MockConnection.connect;
+    var model = new MockConnection({
+      hostname: 'localhost',
+      port: '27017',
+      ssh_tunnel: 'USER_PASSWORD',
+      ssh_tunnel_hostname: 'my.ssh-server.com',
+      ssh_tunnel_password: 'password',
+      ssh_tunnel_username: 'my-user'
+    });
+    assert(model.isValid());
+    // state.on('status', function() {
+    //   console.log('status', arguments);
+    // });
+    // var tasks = connect.getTasks(model);
+    // var tunnel = tasks.tunnel;
+    var state = mockConnect(model, function(err) {
+      if (err) {
+        console.log('inside connect error');
+      }
+    });
+    state.on('status', function(evt) {
+      console.log('event: ', evt);
+      if (evt.message === 'Closing SSH Tunnel' && evt.complete) {
+        done();
+      }
     });
   });
 
