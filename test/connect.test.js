@@ -63,18 +63,11 @@ describe('mongodb-connection#connect', function() {
   });
 
   describe('cloud #slow', function() {
-    const regex = /🔒  integrations@2.6 Cluster: /; // eslint-disable-line no-regex-spaces
+    this.slow(5000);
+    this.timeout(10000);
+
     data.MATRIX.map(function(d) {
       it(format('should connect to `%s`', d.name), function(done) {
-        if (regex.test(d.name)) {
-          console.log('Skipping test pending COMPASS-460');
-          console.log(regex);
-          this.skip();
-          return;
-        }
-        this.slow(5000);
-        this.timeout(10000);
-
         connect(d, function(err, _db) {
           if (err) {
             return done(err);
@@ -85,25 +78,14 @@ describe('mongodb-connection#connect', function() {
       });
     });
 
-    var find = function(_db, done) {
-      _db.db('mongodb').collection('fanclub').find({}, {
-        limit: 10
-      }, function(err, docs) {
-        if (err) {
-          return done(err);
-        }
-        assert.equal(docs.length, 10);
-        done();
-      });
-    };
-
     data.SSH_TUNNEL_MATRIX.map(function(d) {
       it('connects via the ssh_tunnel to ' + d.ssh_tunnel_hostname, function(done) {
         connect(d, function(err, _db) {
           if (err) {
             return done(err);
           }
-          find(_db, done);
+          _db.close();
+          done();
         });
       });
     });
