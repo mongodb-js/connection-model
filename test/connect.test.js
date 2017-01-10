@@ -53,10 +53,12 @@ describe('mongodb-connection#connect', function() {
         });
         assert(model.isValid());
         mockConnect(model, function(err) {
-          if (err) {
-            assert.ok(spy.calledOnce);
-            done();
-          }
+          // must throw error here, because the connection details are invalid
+          assert.ok(err);
+          assert.ok(/failed to connect to server/.test(err.message));
+          // assert that tunnel.close() was called once
+          assert.ok(spy.calledOnce);
+          done();
         });
       });
     });
