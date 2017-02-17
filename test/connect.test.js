@@ -12,6 +12,7 @@ var shouldGetInstanceDetails = function(db, done) {
 };
 
 var format = require('util').format;
+// TODO: These instances are now turned off
 var data = require('mongodb-connection-fixture');
 
 describe('mongodb-connection#connect', function() {
@@ -69,7 +70,7 @@ describe('mongodb-connection#connect', function() {
     this.timeout(10000);
 
     data.MATRIX.map(function(d) {
-      it(format('should connect to `%s`', d.name), function(done) {
+      it.skip(format('should connect to `%s`', d.name), function(done) {
         connect(d, function(err, _db) {
           if (err) {
             return done(err);
@@ -81,7 +82,7 @@ describe('mongodb-connection#connect', function() {
     });
 
     data.SSH_TUNNEL_MATRIX.map(function(d) {
-      it('connects via the ssh_tunnel to ' + d.ssh_tunnel_hostname, function(done) {
+      it.skip('connects via the ssh_tunnel to ' + d.ssh_tunnel_hostname, function(done) {
         connect(d, function(err, _db) {
           if (err) {
             return done(err);
