@@ -11,7 +11,6 @@ var shouldGetInstanceDetails = function(db, done) {
   Instance.fetch(db, done);
 };
 
-var format = require('util').format;
 // TODO: These instances are now turned off
 var data = require('mongodb-connection-fixture');
 
@@ -70,7 +69,7 @@ describe('mongodb-connection#connect', function() {
     this.timeout(10000);
 
     data.MATRIX.map(function(d) {
-      it.skip(format('should connect to `%s`', d.name), function(done) {
+      it.skip('should connect to ' + d.name, function(done) {
         connect(d, function(err, _db) {
           if (err) {
             return done(err);
