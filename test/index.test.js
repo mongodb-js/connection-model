@@ -120,12 +120,12 @@ describe('mongodb-connection-model', function() {
         '<PASSWORD>',
         okAtlasPassword
       );
-      it('defaults SSL to UNVALIDATED', function() {
+      it('defaults SSL to SYSTEMCA', function() {
         var c = Connection.from(atlasConnection);
         // In future, we should ship our own CA with Compass
         // so we can default to 'SERVER'-validated.
         // This is a step in the right direction so let's take the easy wins.
-        assert.equal(c.ssl, 'UNVALIDATED');
+        assert.equal(c.ssl, 'SYSTEMCA');
       });
       it('clears the default <PASSWORD>', function() {
         // UX: We clear the default string 'PASSWORD' from the Atlas GUI
@@ -142,7 +142,7 @@ describe('mongodb-connection-model', function() {
       it('works with a non-default secure password', function() {
         var userPass = '6NuZPtHCrjYBAWnI7Iq6jvtsdJx67X0';
         var c = Connection.from(atlasConnection.replace('<PASSWORD>', userPass));
-        assert.equal(c.ssl, 'UNVALIDATED');
+        assert.equal(c.ssl, 'SYSTEMCA');
         assert.equal(c.mongodb_password, userPass);
       });
       it('does not false positive on hi.mongodb.net.my.domain.com', function() {
@@ -152,7 +152,7 @@ describe('mongodb-connection-model', function() {
       });
       it('is case insensitive, see RFC4343', function() {
         var c = Connection.from(atlasConnection.replace(/mongodb.net/g, 'mOnGOdB.NeT'));
-        assert.equal(c.ssl, 'UNVALIDATED');
+        assert.equal(c.ssl, 'SYSTEMCA');
       });
     });
 
