@@ -113,7 +113,7 @@ describe('mongodb-connection-model', function() {
       var atlasConnection = 'mongodb://ADMINUSER:<PASSWORD>@' +
           'a-compass-atlas-test-shard-00-00-vll9l.mongodb.net:38128,' +
           'a-compass-atlas-test-shard-00-01-vll9l.mongodb.net:38128,' +
-          'a-compass-atlas-test-shard-00-02-vll9l.mongodb.net:38128/admin?' +
+          'a-compass-atlas-test-shard-00-02-vll9l.mongodb.net:38128/<DATABASE>?' +
           'ssl=true&replicaSet=a-compass-atlas-test-shard-0&authSource=admin';
       var okAtlasPassword = 'A_MUCH_LONGER_PASSWORD_should_be_more secure...';
       var okAtlasPasswordConnection = atlasConnection.replace(
