@@ -145,6 +145,11 @@ describe('mongodb-connection-model', function() {
         assert.equal(c.ssl, 'SYSTEMCA');
         assert.equal(c.mongodb_password, userPass);
       });
+      it('changes the <DATABASE> namespace to test', function() {
+        assert.ok(atlasConnection.indexOf('<DATABASE>') > -1);
+        var c = Connection.from(atlasConnection);
+        assert.equal(c.ns, 'test');
+      });
       it('does not false positive on hi.mongodb.net.my.domain.com', function() {
         var c = Connection.from(
             atlasConnection.replace(/mongodb.net/g, 'hi.mongodb.net.my.domain.com'));
