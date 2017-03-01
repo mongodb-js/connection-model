@@ -110,11 +110,16 @@ describe('mongodb-connection-model', function() {
     });
 
     describe('ATLAS - mongodb.net', function() {
-      var atlasConnection = 'mongodb://ADMINUSER:PASSWORD@' +
+      var atlasConnection = 'mongodb://ADMINUSER:<PASSWORD>@' +
           'a-compass-atlas-test-shard-00-00-vll9l.mongodb.net:38128,' +
           'a-compass-atlas-test-shard-00-01-vll9l.mongodb.net:38128,' +
           'a-compass-atlas-test-shard-00-02-vll9l.mongodb.net:38128/admin?' +
           'ssl=true&replicaSet=a-compass-atlas-test-shard-0&authSource=admin';
+      var okAtlasPassword = 'A_MUCH_LONGER_PASSWORD_should_be_more secure...';
+      var okAtlasPasswordConnection = atlasConnection.replace(
+        '<PASSWORD>',
+        okAtlasPassword
+      );
       it('defaults SSL to UNVALIDATED', function() {
         var c = Connection.from(atlasConnection);
         // In future, we should ship our own CA with Compass
@@ -122,7 +127,7 @@ describe('mongodb-connection-model', function() {
         // This is a step in the right direction so let's take the easy wins.
         assert.equal(c.ssl, 'UNVALIDATED');
       });
-      it('clears the default PASSWORD', function() {
+      it('clears the default <PASSWORD>', function() {
         // UX: We clear the default string 'PASSWORD' from the Atlas GUI
         // so the user is forced to enter their own password
         // rather than getting trapped with the error:
@@ -130,9 +135,13 @@ describe('mongodb-connection-model', function() {
         var c = Connection.from(atlasConnection);
         assert.equal(c.mongodb_password, '');
       });
+      it('does not clear sufficiently long passwords that happen to contain PASSWORD', function() {
+        var c = Connection.from(okAtlasPasswordConnection);
+        assert.equal(c.mongodb_password, okAtlasPassword);
+      });
       it('works with a non-default secure password', function() {
         var userPass = '6NuZPtHCrjYBAWnI7Iq6jvtsdJx67X0';
-        var c = Connection.from(atlasConnection.replace('PASSWORD', userPass));
+        var c = Connection.from(atlasConnection.replace('<PASSWORD>', userPass));
         assert.equal(c.ssl, 'UNVALIDATED');
         assert.equal(c.mongodb_password, userPass);
       });
