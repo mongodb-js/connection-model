@@ -20,7 +20,7 @@ var Connection = require('mongodb-connection-model');
 - `hostname` (optional, String) ... Hostname of a MongoDB Instance [Default: `localhost`].
 - `port` (optional, Number) ... TCP port of a MongoDB Instance [Default: `27017`].
 - `name` (optional, String) ... User specified name [Default: `My MongoDB`].
-- `ns` (optional, String) ... A valid [ns][ns] the user can read from [Default: `undefined`].
+- `ns` (optional, String) ... A valid [ns][ns] the user can read from [Default: `test`].
 
 ## Derived Properties
 
