@@ -46,6 +46,6 @@
     "mongodb-js-precommit": "^0.2.9",
     "mongodb-runner": "^3.3.3",
     "pre-commit": "^1.1.2",
-    "sinon": "^1.17.7"
+    "sinon": "^2.1.0"
   }
 }
