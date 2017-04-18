@@ -22,6 +22,7 @@ var Connection = require('mongodb-connection-model');
 - `name` (optional, String) ... User specified name [Default: `My MongoDB`].
 - `ns` (optional, String) ... A valid [ns][ns] the user can read from [Default: `undefined`].
 - `app_name` (optional, String) ... An application name passed to server as client metadata [Default: `undefined`].
+- `extra_options` (optional, Object) ... Extra options passed to the node driver as part of `driver_options` [Default: `{}`].
 
 ## Derived Properties
 
