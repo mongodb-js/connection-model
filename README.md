@@ -73,8 +73,7 @@ var c = new Connection({
 console.log(c.driver_url)
 >>> 'mongodb://arlo:w%40of@localhost:27017/?slaveOk=true&authSource=admin'
 console.log(c.driver_options)
->>> { uri_decode_auth: true,
-  db: { readPreference: 'nearest' },
+>>> { db: { readPreference: 'nearest' },
   replSet: { connectWithNoPrimary: true } }
 ```
 
@@ -102,8 +101,7 @@ console.log(c.driver_options)
  console.log(c.driver_url)
  >>> 'mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017/toys?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI'
  console.log(c.driver_options)
- >>> { uri_decode_auth: true,
-   db: { readPreference: 'nearest' },
+ >>> { db: { readPreference: 'nearest' },
    replSet: { connectWithNoPrimary: true } }
 ```
 
@@ -141,9 +139,8 @@ var c = new Connection({
 console.log(c.driver_url)
 >>> 'mongodb://CN%253Dclient%252COU%253Darlo%252CO%253DMongoDB%252CL%253DPhiladelphia%252CST%253DPennsylvania%252CC%253DUS@localhost:27017?slaveOk=true&authMechanism=MONGODB-X509'
 console.log(c.driver_options)
->>> { uri_decode_auth: true,
-db: { readPreference: 'nearest' },
-replSet: { connectWithNoPrimary: true } }
+>>> { db: { readPreference: 'nearest' },
+  replSet: { connectWithNoPrimary: true } }
 ```
 
 <a name="authentication-ldap"></a>
@@ -168,9 +165,8 @@ var c = new Connection({
 console.log(c.driver_url)
 >>> 'mongodb://arlo:w%40of@localhost:27017/toys?slaveOk=true&authMechanism=PLAIN'
 console.log(c.driver_options)
->>> { uri_decode_auth: true,
- db: { readPreference: 'nearest' },
- replSet: { connectWithNoPrimary: true } }
+>>> { db: { readPreference: 'nearest' },
+  replSet: { connectWithNoPrimary: true } }
 ```
 
 ### Trait: SSL
