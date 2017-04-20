@@ -17,7 +17,9 @@ var data = require('mongodb-connection-fixture');
 describe('mongodb-connection#connect', function() {
   describe('local', function() {
     this.slow(2000);
-    this.timeout(10000);
+    // Can sometimes be slowed down downloading and installing mongodb, e.g.
+    // https://travis-ci.org/mongodb-js/connection-model/builds/170099192
+    this.timeout(20000);
     before(require('mongodb-runner/mocha/before')());
     after(require('mongodb-runner/mocha/after')());
     it('should connect to `localhost:27017`', function(done) {
