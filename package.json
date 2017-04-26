@@ -30,7 +30,7 @@
     "async": "^2.1.5",
     "backoff": "^2.4.1",
     "debug": "^2.6.0",
-    "kerberos": "^0.0.22",
+    "kerberos": "^0.0.23",
     "lodash": "^4.16.4",
     "mongodb": "^2.2.24",
     "mongodb-url": "^1.0.2",
