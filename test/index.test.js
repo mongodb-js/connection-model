@@ -877,6 +877,10 @@ describe('mongodb-connection-model', function() {
   });
 
   describe('connectionType', function() {
+    it('defaults connectionType to NODE_DRIVER', function() {
+      var c = new Connection({});
+      assert.strictEqual(c.connectionType, 'NODE_DRIVER');
+    });
     context('when the connectionType is NODE_DRIVER', function() {
       it('defaults  hostname to localhost', function() {
         var c = new Connection({connectionType: 'NODE_DRIVER'});
