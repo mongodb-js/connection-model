@@ -33,7 +33,7 @@ describe('mongodb-connection#connect', function() {
         return {close: spy};
       });
 
-      var MockConnection = mock.reRequire('../lib/model');
+      var MockConnection = mock.reRequire('../lib/extended-model');
       var mockConnect = mock.reRequire('../lib/connect');
 
       it('should close ssh tunnel if the connection fails', function(done) {
