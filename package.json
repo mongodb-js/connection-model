@@ -43,6 +43,7 @@
     "ssh2": "^0.5.4"
   },
   "devDependencies": {
+    "bson": "^4.0.1",
     "electron": "^4.0.6",
     "eslint-config-mongodb-js": "^2.2.0",
     "lodash.foreach": "^4.5.0",
@@ -50,7 +51,6 @@
     "mock-require": "^2.0.1",
     "mongodb-connection-fixture": "^0.0.14",
     "mongodb-data-service": "^12.4.17",
-    "mongodb-instance-model": "^7.0.0",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-metrics": "^4.2.0",
     "mongodb-js-precommit": "^0.2.9",
