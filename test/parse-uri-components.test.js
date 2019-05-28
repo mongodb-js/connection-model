@@ -49,6 +49,51 @@ describe('connection model should parse URI components such as', () => {
     });
   });
 
+  describe('the host and optional port number', () => {
+    it('should parse host and port', (done) => {
+      Connection.from(
+        'mongodb://host:27018',
+        (error, result) => {
+          expect(error).to.not.exist;
+          expect(result.hostname).to.be.equal('host');
+          expect(result.hosts[0].host).to.equal('host');
+          expect(result.hosts[0].port).to.equal(27018);
+          done();
+        }
+      );
+    });
+
+    it('should provide a default port if one is not provided', (done) => {
+      Connection.from(
+        'mongodb://host',
+        (error, result) => {
+          expect(error).to.not.exist;
+          expect(result.hostname).to.be.equal('host');
+          expect(result.hosts[0].host).to.equal('host');
+          expect(result.hosts[0].port).to.equal(27017);
+          done();
+        }
+      );
+    });
+  });
+
+  describe('the name of the database to authenticate', () => {
+    it('should parse a database name', (done) => {
+      Connection.from(
+        'mongodb://root:password123@localhost:27017/databasename',
+        (error, result) => {
+          expect(error).to.not.exist;
+          expect(result.auth).to.containSubset({
+            db: 'databasename',
+            username: 'root',
+            password: 'password123'
+          });
+          done();
+        }
+      );
+    });
+  });
+
   describe('connection string options that include', () => {
     describe('replica set options', () => {
       it('should parse replicaSet', (done) => {
