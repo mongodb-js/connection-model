@@ -8,7 +8,7 @@ const getTasks = Connection.connect.getTasks;
 
 chai.use(require('chai-subset'));
 
-describe.only('connection model', () => {
+describe('connection model', () => {
   describe('should build URI', () => {
     it('with appname included', (done) => {
       const c = new Connection({ appname: 'My App' });
