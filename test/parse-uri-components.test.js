@@ -101,7 +101,7 @@ describe('connection model should parse URI components such as', () => {
           'mongodb://db0.example.com:27017,db1.example.com:27017,db2.example.com:27017/admin?replicaSet=myRepl',
           (error, result) => {
             expect(error).to.not.exist;
-            expect(result.options.replicaSet).to.be.equal('myRepl');
+            expect(result.replicaSet).to.be.equal('myRepl');
             expect(result.hostname).to.be.equal('db0.example.com');
             expect(result.port).to.be.equal(27017);
             expect(result.ns).to.be.equal('admin');
@@ -117,7 +117,7 @@ describe('connection model should parse URI components such as', () => {
           'mongodb://db0.example.com,db1.example.com,db2.example.com/?replicaSet=myReplOther&ssl=true',
           (error, result) => {
             expect(error).to.not.exist;
-            expect(result.options.replicaSet).to.be.equal('myReplOther');
+            expect(result.replicaSet).to.be.equal('myReplOther');
             expect(result.options.ssl).to.be.equal(true);
             done();
           }
