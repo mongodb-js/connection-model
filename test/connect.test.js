@@ -2,15 +2,13 @@
 const assert = require('assert');
 const Connection = require('../');
 const connect = Connection.connect;
-const mock = require('mock-require');
-const sinon = require('sinon');
 
 const setupListeners = () => {};
 
 // TODO: These instances are now turned off
 const data = require('mongodb-connection-fixture');
 
-describe('mongodb-connection#connect', () => {
+describe('connection model connector', () => {
   describe('local', function() {
     this.slow(2000);
     this.timeout(10000);
@@ -33,42 +31,6 @@ describe('mongodb-connection#connect', () => {
       connect({port: 27018, host: 'localhost'}, setupListeners, (err) => {
         assert.equal(err, null);
         done();
-      });
-    });
-
-    describe('ssh tunnel failures', () => {
-      const spy = sinon.spy();
-
-      mock('../lib/ssh-tunnel', (model, cb) => {
-        // simulate successful tunnel creation
-        cb();
-        // then return a mocked tunnel object with a spy close() function
-        return {close: spy};
-      });
-
-      const MockConnection = mock.reRequire('../lib/extended-model');
-      const mockConnect = mock.reRequire('../lib/connect');
-
-      it('should close ssh tunnel if the connection fails', (done) => {
-        const model = new MockConnection({
-          hostname: 'localhost',
-          port: '27017',
-          sshTunnel: 'USER_PASSWORD',
-          sshTunnelHostname: 'my.ssh-server.com',
-          sshTunnelPassword: 'password',
-          sshTunnelUsername: 'my-user'
-        });
-
-        assert(model.isValid());
-        mockConnect(model, setupListeners, (err) => {
-          // must throw error here, because the connection details are invalid
-          assert.ok(err);
-          console.log(err.message);
-          assert.ok(/ECONNREFUSED/.test(err.message));
-          // assert that tunnel.close() was called once
-          assert.ok(spy.calledOnce);
-          done();
-        });
       });
     });
   });

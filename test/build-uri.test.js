@@ -8,7 +8,7 @@ const getTasks = Connection.connect.getTasks;
 
 chai.use(require('chai-subset'));
 
-describe('connection model', () => {
+describe('connection model builder', () => {
   describe('should build URI', () => {
     it('with appname included', (done) => {
       const c = new Connection({ appname: 'My App' });
@@ -38,14 +38,14 @@ describe('connection model', () => {
       });
     });
 
-    it('when the connection is a srv record and ssl is set to false', () => {
-      const c = new Connection({ isSrvRecord: true, ssl: 'NONE' });
+    it('when the connection is a srv record and sslType is NONE', () => {
+      const c = new Connection({ isSrvRecord: true, sslType: 'NONE' });
 
       expect(c.driverUrl).to.be.equal('mongodb+srv://localhost/?readPreference=primary&ssl=false');
     });
 
-    it('when ssl is false/NONE', (done) => {
-      const c = new Connection({ ssl: 'NONE' });
+    it('when sslType is NONE', (done) => {
+      const c = new Connection({ sslType: 'NONE' });
 
       expect(c.driverUrl).to.be.equal('mongodb://localhost:27017/?readPreference=primary&ssl=false');
 
@@ -55,8 +55,8 @@ describe('connection model', () => {
       });
     });
 
-    it('when ssl is UNVALIDATED', (done) => {
-      const c = new Connection({ ssl: 'UNVALIDATED' });
+    it('when sslType is UNVALIDATED', (done) => {
+      const c = new Connection({ sslType: 'UNVALIDATED' });
       const options = Object.assign(
         {},
         Connection.DRIVER_OPTIONS_DEFAULT,
@@ -77,8 +77,8 @@ describe('connection model', () => {
       });
     });
 
-    it('when ssl is SYSTEMCA', (done) => {
-      const c = new Connection({ ssl: 'SYSTEMCA' });
+    it('when sslType is SYSTEMCA', (done) => {
+      const c = new Connection({ sslType: 'SYSTEMCA' });
       const options = Object.assign(
         {},
         Connection.DRIVER_OPTIONS_DEFAULT,
@@ -99,8 +99,8 @@ describe('connection model', () => {
       });
     });
 
-    it('when ssl is IFAVAILABLE', (done) => {
-      const c = new Connection({ ssl: 'IFAVAILABLE' });
+    it('when sslType is IFAVAILABLE', (done) => {
+      const c = new Connection({ sslType: 'IFAVAILABLE' });
       const options = Object.assign(
         {},
         Connection.DRIVER_OPTIONS_DEFAULT,
@@ -121,8 +121,8 @@ describe('connection model', () => {
       });
     });
 
-    it('when ssl is SERVER', (done) => {
-      const c = new Connection({ ssl: 'SERVER', sslCA: fixture.ssl.ca });
+    it('when sslType is SERVER', (done) => {
+      const c = new Connection({ sslType: 'SERVER', sslCA: fixture.ssl.ca });
       const options = Object.assign(
         {},
         Connection.DRIVER_OPTIONS_DEFAULT,
@@ -143,9 +143,9 @@ describe('connection model', () => {
       });
     });
 
-    it('when ssl is ALL and using X509 auth', (done) => {
+    it('when sslType is ALL and using X509 auth', (done) => {
       const c = new Connection({
-        ssl: 'ALL',
+        sslType: 'ALL',
         sslCA: fixture.ssl.ca,
         sslCert: fixture.ssl.server,
         sslKey: fixture.ssl.server,
@@ -166,7 +166,7 @@ describe('connection model', () => {
         }
       );
 
-      expect(c.driverUrl).to.be.equal('mongodb://testing@localhost:27017/?readPreference=primary&authMechanism=MONGODB-X509&ssl=true');
+      expect(c.driverUrl).to.be.equal('mongodb://testing@localhost:27017/?authMechanism=MONGODB-X509&readPreference=primary&ssl=true');
       expect(c.driverOptions).to.deep.equal(options);
 
       Connection.from(c.driverUrl, (error) => {
@@ -175,9 +175,9 @@ describe('connection model', () => {
       });
     });
 
-    it('when ssl is ALL and passwordless private keys', (done) => {
+    it('when sslType is ALL and passwordless private keys', (done) => {
       const c = new Connection({
-        ssl: 'ALL',
+        sslType: 'ALL',
         sslCA: fixture.ssl.ca,
         sslCert: fixture.ssl.server,
         sslKey: fixture.ssl.server
@@ -217,9 +217,9 @@ describe('connection model', () => {
       });
     });
 
-    it('when ssl is ALL and password protected private keys', (done) => {
+    it('when sslType is ALL and password protected private keys', (done) => {
       const c = new Connection({
-        ssl: 'ALL',
+        sslType: 'ALL',
         sslCA: fixture.ssl.ca,
         sslCert: fixture.ssl.server,
         sslKey: fixture.ssl.server,
@@ -266,7 +266,7 @@ describe('connection model', () => {
         authentication: 'SCRAM-SHA-256'
       });
 
-      expect(c.driverUrl).to.be.equal('mongodb://%40rlo:w%40of@localhost:27017/?readPreference=primary&authSource=admin&authMechanism=SCRAM-SHA-256&ssl=false');
+      expect(c.driverUrl).to.be.equal('mongodb://%40rlo:w%40of@localhost:27017/?authSource=admin&authMechanism=SCRAM-SHA-256&readPreference=primary&ssl=false');
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -280,7 +280,7 @@ describe('connection model', () => {
         mongodbPassword: 'w@of'
       });
 
-      expect(c.driverUrl).to.be.equal('mongodb://%40rlo:w%40of@localhost:27017/?readPreference=primary&authSource=admin&ssl=false');
+      expect(c.driverUrl).to.be.equal('mongodb://%40rlo:w%40of@localhost:27017/?authSource=admin&readPreference=primary&ssl=false');
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -294,7 +294,7 @@ describe('connection model', () => {
       const authExpect = `${encodeURIComponent(mongodbUsername)}:${encodeURIComponent(mongodbPassword)}`;
       const c = new Connection({ mongodbUsername, mongodbPassword });
 
-      expect(c.driverUrl).to.be.equal(`mongodb://${authExpect}@localhost:27017/?readPreference=primary&authSource=admin&ssl=false`);
+      expect(c.driverUrl).to.be.equal(`mongodb://${authExpect}@localhost:27017/?authSource=admin&readPreference=primary&ssl=false`);
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -308,7 +308,7 @@ describe('connection model', () => {
       const authExpect = `${encodeURIComponent(mongodbUsername)}:${encodeURIComponent(mongodbPassword)}`;
       const c = new Connection({ mongodbUsername, mongodbPassword });
 
-      expect(c.driverUrl).to.be.equal(`mongodb://${authExpect}@localhost:27017/?readPreference=primary&authSource=admin&ssl=false`);
+      expect(c.driverUrl).to.be.equal(`mongodb://${authExpect}@localhost:27017/?authSource=admin&readPreference=primary&ssl=false`);
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -322,7 +322,7 @@ describe('connection model', () => {
       const authExpect = `${encodeURIComponent(ldapUsername)}:${encodeURIComponent(ldapPassword)}`;
       const c = new Connection({ ldapUsername, ldapPassword });
 
-      expect(c.driverUrl).to.be.equal(`mongodb://${authExpect}@localhost:27017/?readPreference=primary&authMechanism=PLAIN&ssl=false&authSource=$external`);
+      expect(c.driverUrl).to.be.equal(`mongodb://${authExpect}@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external`);
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -336,7 +336,7 @@ describe('connection model', () => {
       const authExpect = `${encodeURIComponent(kerberosPrincipal)}:${encodeURIComponent(kerberosPassword)}`;
       const c = new Connection({ kerberosPrincipal, kerberosPassword });
 
-      expect(c.driverUrl).to.be.equal(`mongodb://${authExpect}@localhost:27017/?readPreference=primary&gssapiServiceName=mongodb&authMechanism=GSSAPI&ssl=false&authSource=$external`);
+      expect(c.driverUrl).to.be.equal(`mongodb://${authExpect}@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external`);
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -354,7 +354,7 @@ describe('connection model', () => {
         kerberosPassword
       });
 
-      expect(c.driverUrl).to.be.equal(`mongodb://${authExpect}@localhost:27017/?readPreference=primary&gssapiServiceName=mongodb&authMechanism=GSSAPI&ssl=false&authSource=$external&authMechanismProperties=CANONICALIZE_HOST_NAME:true`);
+      expect(c.driverUrl).to.be.equal(`mongodb://${authExpect}@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external&authMechanismProperties=CANONICALIZE_HOST_NAME:true`);
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -379,7 +379,7 @@ describe('connection model', () => {
       c.ldapUsername = 'ldap-user';
       c.ldapPassword = 'ldap-password';
 
-      expect(c.driverUrl).to.be.equal('mongodb://ldap-user:ldap-password@localhost:27017/?readPreference=primary&authMechanism=PLAIN&ssl=false&authSource=$external');
+      expect(c.driverUrl).to.be.equal('mongodb://ldap-user:ldap-password@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external');
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -396,7 +396,7 @@ describe('connection model', () => {
       });
 
       expect(c.driverAuthMechanism).to.be.equal('PLAIN');
-      expect(c.driverUrl).to.be.equal('mongodb://arlo:w%40of@localhost:27017/ldap?readPreference=primary&authMechanism=PLAIN&ssl=false&authSource=$external');
+      expect(c.driverUrl).to.be.equal('mongodb://arlo:w%40of@localhost:27017/ldap?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external');
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -414,7 +414,7 @@ describe('connection model', () => {
       });
 
       expect(c.driverAuthMechanism).to.be.equal('PLAIN');
-      expect(c.driverUrl).to.be.equal('mongodb://arlo%40t.co:woof@localhost:27017/ldap?readPreference=primary&authMechanism=PLAIN&ssl=false&authSource=$external');
+      expect(c.driverUrl).to.be.equal('mongodb://arlo%40t.co:woof@localhost:27017/ldap?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external');
 
       Connection.from(c.driverUrl, (error) => {
         expect(error).to.not.exist;
@@ -432,7 +432,7 @@ describe('connection model', () => {
       expect(c.driverUrl).to.be.equal(
         'mongodb://CN%3Dclient%2COU%3Dkerneluser%2CO%3D10Gen%2CL%3DNew%20York%20City'
         + '%2CST%3DNew%20York%2CC%3DUS@localhost:27017/'
-        + '?readPreference=primary&authMechanism=MONGODB-X509&ssl=false'
+        + '?authMechanism=MONGODB-X509&readPreference=primary&ssl=false'
       );
 
       Connection.from(c.driverUrl, (error) => {
@@ -442,9 +442,9 @@ describe('connection model', () => {
     });
   });
 
-  describe('should build a connection object and', () => {
+  describe('should build a connection object with', () => {
     context('authentication', () => {
-      it('set authentication to SCRAM-SHA-256', (done) => {
+      it('and set authentication to SCRAM-SHA-256', (done) => {
         const c = new Connection({
           mongodbUsername: 'arlo',
           mongodbPassword: 'woof',
@@ -459,7 +459,7 @@ describe('connection model', () => {
         });
       });
 
-      it('throw the error if auth is SCRAM-SHA-256 and mongodbUsername is missing', () => {
+      it('and throw the error if auth is SCRAM-SHA-256 and mongodbUsername is missing', () => {
         const attrs = {
           authentication: 'SCRAM-SHA-256',
           mongodbPassword: 'woof'
@@ -471,7 +471,7 @@ describe('connection model', () => {
         expect(error.message).to.include('mongodbUsername field is required');
       });
 
-      it('throw the error if auth is SCRAM-SHA-256 and mongodbPassword is missing', () => {
+      it('and throw the error if auth is SCRAM-SHA-256 and mongodbPassword is missing', () => {
         const attrs = {
           mongodbUsername: 'arlo',
           authentication: 'SCRAM-SHA-256'
@@ -483,7 +483,7 @@ describe('connection model', () => {
         expect(error.message).to.include('mongodbPassword field is required');
       });
 
-      it('throw the error if MONGODB auth receives non-applicable fields', () => {
+      it('and throw the error if MONGODB auth receives non-applicable fields', () => {
         const attrs = {
           mongodbUsername: 'arlo',
           mongodbPassword: 'woof',
@@ -496,7 +496,7 @@ describe('connection model', () => {
         expect(error.message).to.include('kerberosServiceName field does not apply');
       });
 
-      it('set authentication to MONGODB', (done) => {
+      it('and set authentication to MONGODB', (done) => {
         const c = new Connection({
           mongodbUsername: 'arlo',
           mongodbPassword: 'woof'
@@ -510,7 +510,7 @@ describe('connection model', () => {
         });
       });
 
-      it('throw the error if auth is MONGODB and mongodbUsername is missing', () => {
+      it('and throw the error if auth is MONGODB and mongodbUsername is missing', () => {
         const attrs = { authentication: 'MONGODB', mongodbPassword: 'woof' };
         const c = new Connection(attrs);
         const error = c.validate(attrs);
@@ -519,7 +519,7 @@ describe('connection model', () => {
         expect(error.message).to.include('mongodbUsername field is required');
       });
 
-      it('throw the error if auth is MONGODB and mongodbPassword is missing', (done) => {
+      it('and throw the error if auth is MONGODB and mongodbPassword is missing', (done) => {
         const c = new Connection({
           mongodbUsername: 'arlo',
           mongodbPassword: 'woof'
@@ -533,7 +533,7 @@ describe('connection model', () => {
         });
       });
 
-      it('set authentication to LDAP', (done) => {
+      it('and set authentication to LDAP', (done) => {
         const c = new Connection({ ldapUsername: 'arlo', ldapPassword: 'w@of'});
 
         expect(c.authentication).to.be.equal('LDAP');
@@ -544,7 +544,7 @@ describe('connection model', () => {
         });
       });
 
-      it('throw the error if auth is LDAP and ldapUsername is missing', () => {
+      it('and throw the error if auth is LDAP and ldapUsername is missing', () => {
         const attrs = { authentication: 'LDAP' };
         const c = new Connection(attrs);
         const error = c.validate(attrs);
@@ -553,7 +553,7 @@ describe('connection model', () => {
         expect(error.message).to.include('ldapUsername field is required');
       });
 
-      it('throw the error if auth is LDAP and ldapPassword is missing', () => {
+      it('and throw the error if auth is LDAP and ldapPassword is missing', () => {
         const attrs = { authentication: 'LDAP', ldapUsername: 'arlo' };
         const c = new Connection(attrs);
         const error = c.validate(attrs);
@@ -562,7 +562,7 @@ describe('connection model', () => {
         expect(error.message).to.include('ldapPassword field is required');
       });
 
-      it('set authentication to X509', (done) => {
+      it('and set authentication to X509', (done) => {
         const c = new Connection({
           x509Username: 'CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US'
         });
@@ -575,7 +575,7 @@ describe('connection model', () => {
         });
       });
 
-      it('throw the error if auth is X509 and x509Username is missing', () => {
+      it('and throw the error if auth is X509 and x509Username is missing', () => {
         const attrs = { authentication: 'X509' };
         const c = new Connection(attrs);
         const error = c.validate(attrs);
@@ -584,7 +584,7 @@ describe('connection model', () => {
         expect(error.message).to.include('x509Username field is required');
       });
 
-      it('set authentication to KERBEROS', (done) => {
+      it('and set authentication to KERBEROS', (done) => {
         const c = new Connection({
           kerberosPrincipal: 'lucas@kerb.mongodb.parts'
         });
@@ -597,7 +597,7 @@ describe('connection model', () => {
         });
       });
 
-      it('throw the error if auth is KERBEROS and kerberosPrincipal is missing', () => {
+      it('and throw the error if auth is KERBEROS and kerberosPrincipal is missing', () => {
         const attrs = { authentication: 'KERBEROS' };
         const c = new Connection(attrs);
         const error = c.validate(attrs);
@@ -606,7 +606,7 @@ describe('connection model', () => {
         expect(error.message).to.include('kerberosPrincipal field is required');
       });
 
-      it('should *only* require a kerberosPrincipal', () => {
+      it('and should *only* require a kerberosPrincipal', () => {
         const attrs = {
           authentication: 'KERBEROS',
           kerberosPrincipal: 'lucas@kerb.mongodb.parts'
@@ -616,7 +616,7 @@ describe('connection model', () => {
         expect(c.isValid()).to.be.equal(true);
       });
 
-      it('set driverAuthMechanism to GSSAPI when a password is provided', (done) => {
+      it('and set driverAuthMechanism to GSSAPI when a password is provided', (done) => {
         const c = new Connection({
           kerberosPrincipal: 'arlo/dog@krb5.mongodb.parts',
           kerberosPassword: 'w@@f',
@@ -631,7 +631,7 @@ describe('connection model', () => {
         });
       });
 
-      it('set driverAuthMechanism to GSSAPI when a password is provided and urlencode the principal', (done) => {
+      it('and set driverAuthMechanism to GSSAPI when a password is provided and urlencode the principal', (done) => {
         const c = new Connection({
           kerberosPrincipal: 'arlo/dog@krb5.mongodb.parts',
           kerberosPassword: 'w@@f',
@@ -650,7 +650,7 @@ describe('connection model', () => {
         });
       });
 
-      it('set driverAuthMechanism to GSSAPI when a password is not provided', (done) => {
+      it('and set driverAuthMechanism to GSSAPI when a password is not provided', (done) => {
         const c = new Connection({
           kerberosPrincipal: 'arlo/dog@krb5.mongodb.parts'
         });
@@ -663,7 +663,7 @@ describe('connection model', () => {
         });
       });
 
-      it('include the `:` auth seperator when no password is provided', (done) => {
+      it('and include the `:` auth seperator when no password is provided', (done) => {
         const c = new Connection({
           kerberosPrincipal: 'lucas@kerb.mongodb.parts'
         });
@@ -680,7 +680,7 @@ describe('connection model', () => {
     });
 
     context('top level properties', () => {
-      it('set the default read preference to primary preferred', (done) => {
+      it('and set the default read preference to primary preferred', (done) => {
         const c = new Connection({ appname: 'My App' });
 
         expect(c.driverOptions).to.be.deep.equal({ readPreference: 'primary', connectWithNoPrimary: true });
@@ -691,7 +691,7 @@ describe('connection model', () => {
         });
       });
 
-      it('set isSrvRecord defaults to false', (done) => {
+      it('and set isSrvRecord defaults to false', (done) => {
         const c = new Connection();
 
         expect(c.isSrvRecord).to.be.equal(false);
@@ -702,7 +702,7 @@ describe('connection model', () => {
         });
       });
 
-      it('allow the mongodbDatabaseName to be optional', () => {
+      it('and allow the mongodbDatabaseName to be optional', () => {
         const attrs = { mongodbUsername: 'arlo' };
         const c = new Connection(attrs);
         const error = c.validate(attrs);
@@ -711,7 +711,7 @@ describe('connection model', () => {
         expect(error.message).to.include('mongodbPassword field is required');
       });
 
-      it('generate the local port when using a ssh tunne and bind to local port does not exist', () => {
+      it('and generate the local port when using a ssh tunne and bind to local port does not exist', () => {
         const c = new Connection();
 
         c.sshTunnel = 'USER_PASSWORD';
@@ -724,9 +724,9 @@ describe('connection model', () => {
         expect(c.sshTunnelBindToLocalPort).to.exist;
       });
 
-      it('when ssl ia ALL should load all of the files from the filesystem', (done) => {
+      it('when sslType ia ALL should load all of the files from the filesystem', (done) => {
         const c = new Connection({
-          ssl: 'ALL',
+          sslType: 'ALL',
           sslCA: [fixture.ssl.ca],
           sslCert: fixture.ssl.server,
           sslKey: fixture.ssl.server
@@ -751,7 +751,7 @@ describe('connection model', () => {
     });
 
     context('extra options', () => {
-      it('use default driverOptions when there is no extra options', (done) => {
+      it('and use default driverOptions when there is no extra options', (done) => {
         const c = new Connection();
 
         expect(c.driverOptions).to.have.property('connectWithNoPrimary');
@@ -764,7 +764,7 @@ describe('connection model', () => {
         });
       });
 
-      it('include extra options in driverOptions when specified', (done) => {
+      it('and include extra options in driverOptions when specified', (done) => {
         const c = new Connection({ extraOptions: { socketTimeoutMS: 1000 } });
         const options = Object.assign(
           {},
@@ -782,7 +782,7 @@ describe('connection model', () => {
     });
 
     context('promote values', () => {
-      it('should not have promoteValues when not specified', (done) => {
+      it('and should not have promoteValues when not specified', (done) => {
         const c = new Connection();
 
         expect(c.driverOptions).to.not.have.property('promoteValues');
@@ -793,7 +793,7 @@ describe('connection model', () => {
         });
       });
 
-      it('should set promoteValues to true', (done) => {
+      it('and should set promoteValues to true', (done) => {
         const c = new Connection({ promoteValues: true });
 
         expect(c.driverOptions).to.have.property('promoteValues');
@@ -805,7 +805,7 @@ describe('connection model', () => {
         });
       });
 
-      it('should set promoteValues to false', (done) => {
+      it('and should set promoteValues to false', (done) => {
         const c = new Connection({ promoteValues: false });
 
         expect(c.driverOptions).to.have.property('promoteValues');
@@ -819,7 +819,7 @@ describe('connection model', () => {
     });
 
     context('connection type', () => {
-      it('should set default connectionType to NODE_DRIVER', (done) => {
+      it('and should set default connectionType to NODE_DRIVER', (done) => {
         const c = new Connection({});
 
         expect(c.connectionType).to.be.equal('NODE_DRIVER');
@@ -830,7 +830,7 @@ describe('connection model', () => {
         });
       });
 
-      it('should set default host and port when connectionType is NODE_DRIVER', (done) => {
+      it('and should set default host and port when connectionType is NODE_DRIVER', (done) => {
         const c = new Connection({ connectionType: 'NODE_DRIVER' });
 
         expect(c.hostname).to.be.equal('localhost');
@@ -842,7 +842,7 @@ describe('connection model', () => {
         });
       });
 
-      it('should not allow stitchClientAppId', () => {
+      it('and should not allow stitchClientAppId', () => {
         const c = new Connection({
           connectionType: 'NODE_DRIVER',
           stitchClientAppId: 'xkcd42'
@@ -851,7 +851,7 @@ describe('connection model', () => {
         expect(c.isValid()).to.be.equal(false);
       });
 
-      it('should not allow stitchClientAppId', () => {
+      it('and should not allow stitchClientAppId', () => {
         const c = new Connection({
           connectionType: 'NODE_DRIVER',
           stitchBaseUrl: 'http://localhost:9001/'
@@ -860,7 +860,7 @@ describe('connection model', () => {
         expect(c.isValid()).to.be.equal(false);
       });
 
-      it('should not allow stitchGroupId', () => {
+      it('and should not allow stitchGroupId', () => {
         const c = new Connection({
           connectionType: 'NODE_DRIVER',
           stitchGroupId: '23xkcd'
@@ -869,7 +869,7 @@ describe('connection model', () => {
         expect(c.isValid()).to.be.equal(false);
       });
 
-      it('should not allow stitchServiceName', () => {
+      it('and should not allow stitchServiceName', () => {
         const c = new Connection({
           connectionType: 'NODE_DRIVER',
           stitchServiceName: 'woof'
@@ -951,26 +951,26 @@ describe('connection model', () => {
     });
   });
 
-  describe('#isURI', () => {
-    it('when using a mongodb protocol returns true', () => {
+  describe('should support isURI() method', () => {
+    it('which returns true when using a mongodb protocol', () => {
       const isURI = Connection.isURI('mongodb://localhost&ssl=false');
 
       expect(isURI).to.be.equal(true);
     });
 
-    it('when using a mongodb+srv protocol returns true', () => {
+    it('which returns true when using a mongodb+srv protocol', () => {
       const isURI = Connection.isURI('mongodb+srv://localhost&ssl=false');
 
       expect(isURI).to.be.equal(true);
     });
 
-    it('when using another protocol returns false', () => {
+    it('which returns false when using another protocol', () => {
       const isURI = Connection.isURI('mongodb+somethign://localhost&ssl=false');
 
       expect(isURI).to.be.equal(false);
     });
 
-    it('when using a shell connection string returns false', () => {
+    it('which returns false when using a shell connection string', () => {
       const isURI = Connection.isURI('mongo "mongodb://localhost&ssl=false"');
 
       expect(isURI).to.be.equal(false);

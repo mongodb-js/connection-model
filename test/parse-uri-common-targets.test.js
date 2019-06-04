@@ -4,7 +4,7 @@ const expect = chai.expect;
 
 chai.use(require('chai-subset'));
 
-describe('connection model should parse URI strings for common connection targets such as', () => {
+describe('connection model parser should parse URI strings for common connection targets such as', () => {
   context('ATLAS - mongodb.net when a database is provided', () => {
     const atlasConnection = 'mongodb://ADMINUSER:<PASSWORD>@' +
       'a-compass-atlas-test-shard-00-00-vll9l.mongodb.net:38128,' +
@@ -19,7 +19,7 @@ describe('connection model should parse URI strings for common connection target
         expect(error).to.not.exist;
         expect(result.replicaSet).to.be.equal('a-compass-atlas-test-shard-0');
         expect(result.readPreference).to.be.equal('secondary');
-        expect(result.ssl).to.be.equal('SYSTEMCA');
+        expect(result.sslType).to.be.equal('SYSTEMCA');
         expect(result.mongodbPassword).to.be.equal('');
         expect(result.ns).to.be.equal('admin');
         expect(result.driverUrl).to.include('authSource=admin');
@@ -41,7 +41,7 @@ describe('connection model should parse URI strings for common connection target
 
       Connection.from(modifiedAtlasConnection, (error, result) => {
         expect(error).to.not.exist;
-        expect(result.ssl).to.be.equal('SYSTEMCA');
+        expect(result.sslType).to.be.equal('SYSTEMCA');
         expect(result.mongodbPassword).to.be.equal(userPass);
         done();
       });
@@ -55,7 +55,7 @@ describe('connection model should parse URI strings for common connection target
 
       Connection.from(modifiedAtlasConnection, (error, result) => {
         expect(error).to.not.exist;
-        expect(result.ssl).to.be.equal('NONE');
+        expect(result.sslType).to.be.equal('NONE');
         done();
       });
     });
@@ -65,7 +65,7 @@ describe('connection model should parse URI strings for common connection target
 
       Connection.from(modifiedAtlasConnection, (error, result) => {
         expect(error).to.not.exist;
-        expect(result.ssl).to.be.equal('SYSTEMCA');
+        expect(result.sslType).to.be.equal('SYSTEMCA');
         done();
       });
     });
@@ -280,7 +280,7 @@ describe('connection model should parse URI strings for common connection target
         (error, result) => {
           expect(error).to.not.exist;
           expect(result.replicaSet).to.be.equal('test');
-          expect(result.options.readPreference).to.be.equal('secondary');
+          expect(result.readPreference).to.be.equal('secondary');
           expect(result).to.have.property('hosts');
           expect(result.hosts).to.have.lengthOf(3);
           expect(result.hosts[0]).to.be.deep.equal({ host: 'example1.com', port: 27017 });
@@ -297,8 +297,8 @@ describe('connection model should parse URI strings for common connection target
         (error, result) => {
           expect(error).to.not.exist;
           expect(result.replicaSet).to.be.equal('test');
-          expect(result.options.w).to.be.equal(2);
-          expect(result.options.wTimeoutMS).to.be.equal(2000);
+          expect(result.w).to.be.equal(2);
+          expect(result.wTimeoutMS).to.be.equal(2000);
           expect(result).to.have.property('hosts');
           expect(result.hosts).to.have.lengthOf(3);
           expect(result.hosts[0]).to.be.deep.equal({ host: 'example1.com', port: 27017 });
