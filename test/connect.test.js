@@ -67,7 +67,7 @@ describe('connection model connector', () => {
           sshTunnelHostname: 'my.ssh-server.com',
           sshTunnelPassword: 'password',
           sshTunnelUsername: 'my-user',
-          serverSelectionTimeoutMS: 1000
+          extraOptions: { serverSelectionTimeoutMS: 100 }
         });
 
         assert(model.isValid());
