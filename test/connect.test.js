@@ -11,10 +11,7 @@ const setupListeners = () => {};
 const data = require('mongodb-connection-fixture');
 
 describe('connection model connector', () => {
-  describe('local', function() {
-    this.slow(2000);
-    this.timeout(10000);
-
+  describe('local', () => {
     before(
       require('mongodb-runner/mocha/before')({ port: 27018, version: '4.0.0' })
     );
@@ -83,10 +80,7 @@ describe('connection model connector', () => {
     });
   });
 
-  describe('cloud #slow', function() {
-    this.slow(5000);
-    this.timeout(10000);
-
+  describe('cloud #slow', () => {
     data.MATRIX.map(d => {
       it.skip('should connect to ' + d.name, done => {
         connect(d, setupListeners, (err, client) => {
