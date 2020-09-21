@@ -159,15 +159,6 @@ describe('connection model parser should parse URI strings for common connection
       );
     });
 
-    it('when prefix is not specified', (done) => {
-      Connection.from('localhost:27017', (error, result) => {
-        expect(error).to.not.exist;
-        expect(result.hostname).to.be.equal('localhost');
-        expect(result.port).to.be.equal(27017);
-        done();
-      });
-    });
-
     it('with explicit authSource', (done) => {
       Connection.from(
         'mongodb://%40rlo:w%40of@localhost:27017/dogdb?authMechanism=SCRAM-SHA-1&authSource=catdb',
