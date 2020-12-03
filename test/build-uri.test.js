@@ -594,7 +594,7 @@ describe('Connection model builder', () => {
         const error = c.validate(attrs);
 
         expect(c.isValid()).to.be.equal(false);
-        expect(error.message).to.include('mongodbUsername field is required');
+        expect(error.message).to.include('The \'Username\' field is required when using \'Username/Password\' or \'SCRAM-SHA-256\' for authentication.');
       });
 
       it('should throw the error if auth is SCRAM-SHA-256 and mongodbPassword is missing', () => {
@@ -606,7 +606,7 @@ describe('Connection model builder', () => {
         const error = c.validate(attrs);
 
         expect(c.isValid()).to.be.equal(false);
-        expect(error.message).to.include('mongodbPassword field is required');
+        expect(error.message).to.equal('The \'Password\' field is required when using \'Username/Password\' or \'SCRAM-SHA-256\' for authentication.');
       });
 
       it('should throw the error if MONGODB auth receives non-applicable fields', () => {
@@ -619,8 +619,8 @@ describe('Connection model builder', () => {
         const error = c.validate(attrs);
 
         expect(c.isValid()).to.be.equal(false);
-        expect(error.message).to.include(
-          'kerberosServiceName field does not apply'
+        expect(error.message).to.equal(
+          'The Kerberos \'Service Name\' field does not apply when using MONGODB for authentication.'
         );
       });
 
@@ -683,7 +683,7 @@ describe('Connection model builder', () => {
         const error = c.validate(attrs);
 
         expect(c.isValid()).to.be.equal(false);
-        expect(error.message).to.include('mongodbUsername field is required');
+        expect(error.message).to.include('The \'Username\' field is required when using \'Username/Password\' or \'SCRAM-SHA-256\' for authentication.');
       });
 
       it('should throw the error if auth is MONGODB and mongodbPassword is missing', (done) => {
@@ -734,7 +734,7 @@ describe('Connection model builder', () => {
         const error = c.validate(attrs);
 
         expect(c.isValid()).to.be.equal(false);
-        expect(error.message).to.include('ldapUsername field is required');
+        expect(error.message).to.equal('The \'Username\' field is required when using \'LDAP\' for authentication.');
       });
 
       it('should throw the error if auth is LDAP and ldapPassword is missing', () => {
@@ -743,7 +743,7 @@ describe('Connection model builder', () => {
         const error = c.validate(attrs);
 
         expect(c.isValid()).to.be.equal(false);
-        expect(error.message).to.include('ldapPassword field is required');
+        expect(error.message).to.equal('The \'Password\' field is required when using LDAP for authentication.');
       });
 
       it('should set authStrategy to X509', (done) => {
@@ -781,7 +781,7 @@ describe('Connection model builder', () => {
         const error = c.validate(attrs);
 
         expect(c.isValid()).to.be.equal(false);
-        expect(error.message).to.include('SSL method is required to be set to \'Server and Client\' when using x509 authentication');
+        expect(error.message).to.equal('SSL method is required to be set to \'Server and Client Validation\' when using X.509 authentication.');
       });
 
       it('should set default mongodb gssapiServiceName when using KERBEROS auth', (done) => {
@@ -818,7 +818,7 @@ describe('Connection model builder', () => {
         const error = c.validate(attrs);
 
         expect(c.isValid()).to.be.equal(false);
-        expect(error.message).to.include('kerberosPrincipal field is required');
+        expect(error.message).to.equal('The Kerberos \'Principal\' field is required when using \'Kerberos\' for authentication.');
       });
 
       it('should *only* require a kerberosPrincipal', () => {
@@ -951,7 +951,7 @@ describe('Connection model builder', () => {
         const error = c.validate(attrs);
 
         expect(c.isValid()).to.be.equal(false);
-        expect(error.message).to.include('mongodbPassword field is required');
+        expect(error.message).to.equal('The \'Password\' field is required when using \'Username/Password\' or \'SCRAM-SHA-256\' for authentication.');
       });
 
       it('should generate the local port when using a ssh tunne and bind to local port does not exist', () => {
