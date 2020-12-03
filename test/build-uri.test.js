@@ -760,13 +760,28 @@ describe('Connection model builder', () => {
         });
       });
 
-      it('should throw the error if auth is X509 and x509Username is missing', () => {
-        const attrs = { authStrategy: 'X509' };
+      it('should not throw the error if auth is X509 and x509Username is missing', () => {
+        const attrs = {
+          authStrategy: 'X509',
+          sslMethod: 'ALL',
+          sslCA: [fixture.ssl.ca],
+          sslCert: fixture.ssl.server,
+          sslKey: fixture.ssl.server
+        };
+        const c = new Connection(attrs);
+
+        expect(c.isValid()).to.be.equal(true);
+      });
+
+      it('should throw a validation error if auth is X509 and sslMethod is not "ALL"', () => {
+        const attrs = {
+          authStrategy: 'X509'
+        };
         const c = new Connection(attrs);
         const error = c.validate(attrs);
 
         expect(c.isValid()).to.be.equal(false);
-        expect(error.message).to.include('x509Username field is required');
+        expect(error.message).to.include('SSL method is required to be set to \'Server and Client\' when using x509 authentication');
       });
 
       it('should set default mongodb gssapiServiceName when using KERBEROS auth', (done) => {
