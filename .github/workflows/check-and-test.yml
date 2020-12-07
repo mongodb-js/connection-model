@@ -70,3 +70,12 @@ jobs:
 
       - name: Run Tests
         run: npm run test
+
+      - name: Maybe Clean-Up
+        # Apparently sometimes mongodb-runner that is used in tests can leave
+        # mongo processes still running after tests are done. This step should
+        # ensure that no mongo process is running anymore
+        run: |
+          echo "Terminating rogue mongo servers ..."
+          killall -v -KILL mongod || true
+          killall -v -KILL mongos || true
