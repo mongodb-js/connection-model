@@ -1,6 +1,5 @@
 # This action runs lint checks and tests against the code.
-
-name: Test
+name: Check and Test
 
 # Controls when the action will run.
 on:
