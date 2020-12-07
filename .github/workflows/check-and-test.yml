@@ -16,7 +16,7 @@ jobs:
   check-and-test:
     name: Check and Test
     # The type of runner that the job will run on
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
@@ -30,18 +30,6 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
-      - name: Adding APT Sources
-        run: sudo -E apt-add-repository -y "ppa:ubuntu-toolchain-r/test"
-
-      - name: Install Required OS Packages
-        run: |
-          sudo -E apt-get -yq --no-install-suggests --no-install-recommends install \
-          libkrb5-dev \
-          libsecret-1-dev \
-          libstdc++6 \
-          gnome-keyring \
-          python-gnomekeyring
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v2.1.2
