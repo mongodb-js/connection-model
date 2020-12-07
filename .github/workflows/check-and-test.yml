@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Adding APT Sources
-        uses: sudo -E apt-add-repository -y "ppa:ubuntu-toolchain-r/test"
+        run: sudo -E apt-add-repository -y "ppa:ubuntu-toolchain-r/test"
 
       - name: Install Required OS Packages
         run: |
