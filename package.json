@@ -20,7 +20,7 @@
     "check": "mongodb-js-precommit"
   },
   "peerDependencies": {
-    "mongodb": "^3.6.3"
+    "mongodb": "3.x"
   },
   "dependencies": {
     "ampersand-model": "^8.0.0",
