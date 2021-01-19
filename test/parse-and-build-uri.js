@@ -95,7 +95,7 @@ const tests = [
   {
     description: 'with authMechanismProperties and gssapiServiceName',
     connectionString:
-      'mongodb://%40rlo:w%40of@localhost:27017/?' +
+      'mongodb://%40rlo@localhost:27017/?' +
       'gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&' +
       'authSource=%24external&authMechanismProperties=CANONICALIZE_HOST_NAME%3Atrue&' +
       'gssapiCanonicalizeHostName=true&ssl=false&authSource=$external'

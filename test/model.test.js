@@ -113,13 +113,6 @@ describe('Connection', () => {
           );
         });
 
-        it('maps kerberos_password', () => {
-          assert.strictEqual(
-            new Connection({ kerberos_password: 'test' }).kerberosPassword,
-            'test'
-          );
-        });
-
         it('maps ldap_password', () => {
           assert.strictEqual(
             new Connection({ ldap_password: 'test' }).ldapPassword,
@@ -157,14 +150,6 @@ describe('Connection', () => {
             undefined
           );
         });
-
-        it('does not map kerberos_password', () => {
-          assert.strictEqual(
-            new Connection({ kerberos_password: '' }).kerberosPassword,
-            undefined
-          );
-        });
-
         it('does not map ldap_password', () => {
           assert.strictEqual(
             new Connection({ ldap_password: '' }).ldapPassword,
@@ -199,16 +184,6 @@ describe('Connection', () => {
           assert.strictEqual(
             new Connection({ mongodb_password: 'test', mongodbPassword: 'pw' })
               .mongodbPassword,
-            'pw'
-          );
-        });
-
-        it('does not map kerberos_password', () => {
-          assert.strictEqual(
-            new Connection({
-              kerberos_password: 'test',
-              kerberosPassword: 'pw'
-            }).kerberosPassword,
             'pw'
           );
         });
