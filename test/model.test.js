@@ -223,6 +223,15 @@ describe('Connection', () => {
             'pw'
           );
         });
+
+        it('does not map kerberosPassword', () => {
+          assert.strictEqual(
+            new Connection({
+              kerberosPassword: 'pw'
+            }).kerberosPassword,
+            undefined
+          );
+        });
       });
     });
   });
