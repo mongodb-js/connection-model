@@ -1,10 +1,7 @@
 const Connection = require('../');
 const chai = require('chai');
 const fixture = require('mongodb-connection-fixture');
-const fs = require('fs');
 const expect = chai.expect;
-const loadOptions = Connection.connect.loadOptions;
-const getTasks = Connection.connect.getTasks;
 const encodeURIComponentRFC3986 = Connection.encodeURIComponentRFC3986;
 
 chai.use(require('chai-subset'));
@@ -194,7 +191,7 @@ describe('Connection model builder', () => {
       });
     });
 
-    it('should include sslMethod equal ALL and passwordless private keys', (done) => {
+    it('should include sslMethod equal ALL and passwordless private keys', () => {
       const c = new Connection({
         sslMethod: 'ALL',
         sslCA: fixture.ssl.ca,
@@ -214,25 +211,6 @@ describe('Connection model builder', () => {
         'mongodb://localhost:27017/?readPreference=primary&ssl=true'
       );
       expect(c.driverOptions).to.deep.equal(options);
-
-      /* eslint-disable no-sync */
-      const expectAfterLoad = {
-        sslCA: [fs.readFileSync(fixture.ssl.ca)],
-        sslCert: fs.readFileSync(fixture.ssl.server),
-        sslKey: fs.readFileSync(fixture.ssl.server),
-        sslValidate: true,
-        connectWithNoPrimary: true,
-        readPreference: 'primary'
-      };
-      /* eslint-enable no-sync */
-      const tasks = getTasks(c);
-      // Trigger relevant side-effect, loading the SSL files into memory.
-      // eslint-disable-next-line new-cap
-      tasks['Load SSL files'](function () {
-        // Read files into memory as the connect function does
-        expect(tasks.driverOptions).to.deep.equal(expectAfterLoad);
-        done();
-      });
     });
 
     it('should include sslMethod equal ALL and password protected private keys', (done) => {
@@ -958,31 +936,6 @@ describe('Connection model builder', () => {
 
         expect(c.driverUrl).to.not.be.equal('');
         expect(c.sshTunnelBindToLocalPort).to.not.exist;
-      });
-
-      it('should load all of the files from the filesystem if sslMethod ia ALL', (done) => {
-        const c = new Connection({
-          sslMethod: 'ALL',
-          sslCA: [fixture.ssl.ca],
-          sslCert: fixture.ssl.server,
-          sslKey: fixture.ssl.server
-        });
-
-        loadOptions(c, (error, driverOptions) => {
-          if (error) {
-            return done(error);
-          }
-
-          const opts = driverOptions;
-
-          expect(opts.sslValidate).to.be.equal(true);
-          expect(Array.isArray(opts.sslCA)).to.be.equal(true);
-          expect(Buffer.isBuffer(opts.sslCA[0])).to.be.equal(true);
-          expect(opts.sslPass).to.not.exist;
-          expect(Buffer.isBuffer(opts.sslCert)).to.be.equal(true);
-          expect(Buffer.isBuffer(opts.sslKey)).to.be.equal(true);
-          done();
-        });
       });
     });
 
