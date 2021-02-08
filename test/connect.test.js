@@ -24,15 +24,12 @@ describe('connection model connector', () => {
       const model = await Connection.from('mongodb://localhost:27018');
 
       const [
-        connectErr,
         client,
         { url, options }
       ] = await connect(
         model,
         setupListeners
       );
-
-      if (connectErr) throw connectErr;
 
       assert.strictEqual(
         url,
@@ -55,20 +52,17 @@ describe('connection model connector', () => {
       const model = await Connection.from('mongodb://localhost:27018');
 
       const [
-        connectErr,
         client
       ] = await connect(model, setupListeners);
 
-      assert.equal(connectErr, null);
       client.close(true);
     });
 
     it('should connect to `localhost:27018 with object`', async() => {
-      const [ err, client ] = await connect(
+      const [ client ] = await connect(
         { port: 27018, host: 'localhost' },
         setupListeners
       );
-      assert.equal(err, null);
       client.close(true);
     });
 
@@ -95,13 +89,16 @@ describe('connection model connector', () => {
         });
 
         assert(model.isValid());
-        const [ err ] = await mockConnect(model, setupListeners);
-
-        // Must throw error here, because the connection details are invalid.
-        assert.ok(err);
-        assert.ok(/ECONNREFUSED/.test(err.message));
-        // Assert that tunnel.close() was called once.
-        assert.ok(spy.calledOnce);
+        try {
+          await mockConnect(model, setupListeners);
+          assert(false);
+        } catch (err) {
+          // Must throw error here, because the connection details are invalid.
+          assert.ok(err);
+          assert.ok(/ECONNREFUSED/.test(err.message));
+          // Assert that tunnel.close() was called once.
+          assert.ok(spy.calledOnce);
+        }
       });
     });
   });

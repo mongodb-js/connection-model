@@ -361,7 +361,7 @@ describe('sshTunnel', function () {
         fs.unlink(identityFilePath, done);
       });
 
-      it('should connect successfully', function (done) {
+      it('should connect successfully', async function () {
         if (!process.env.AWS_SSH_TUNNEL_HOSTNAME) {
           return this.skip(
             'Set the `AWS_SSH_TUNNEL_HOSTNAME` environment variable'
@@ -381,7 +381,7 @@ describe('sshTunnel', function () {
           sshTunnelIdentityFile: [identityFilePath]
         });
 
-        Connection.connect(c, setupListeners, done);
+        await Connection.connect(c, setupListeners);
       });
     });
 
