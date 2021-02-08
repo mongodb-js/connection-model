@@ -4,6 +4,7 @@ const Connection = require('../');
 const connect = Connection.connect;
 const mock = require('mock-require');
 const sinon = require('sinon');
+const { promisify } = require('util');
 
 const setupListeners = () => {};
 
@@ -20,57 +21,57 @@ describe('connection model connector', () => {
       require('mongodb-runner/mocha/after')({ port: 27018, version: '4.0.0' })
     );
 
-    it('should return connection config when connected successfully', (done) => {
-      Connection.from('mongodb://localhost:27018', (parseErr, model) => {
-        if (parseErr) throw parseErr;
+    it('should return connection config when connected successfully', async() => {
+      // const buildConnection = promisify(Connection.from);
+      const model = await Connection.from('mongodb://localhost:27018');
 
-        connect(
-          model,
-          setupListeners,
-          (connectErr, client, { url, options }) => {
-            if (connectErr) throw connectErr;
-
-            assert.strictEqual(
-              url,
-              'mongodb://localhost:27018/?readPreference=primary&ssl=false'
-            );
-
-            assert.deepStrictEqual(options, {
-              connectWithNoPrimary: true,
-              directConnection: true,
-              readPreference: 'primary',
-              useNewUrlParser: true,
-              useUnifiedTopology: true
-            });
-
-            client.close(true);
-            done();
-          }
-        );
-      });
-    });
-
-    it('should connect to `localhost:27018 with model`', (done) => {
-      Connection.from('mongodb://localhost:27018', (parseErr, model) => {
-        assert.equal(parseErr, null);
-        connect(model, setupListeners, (connectErr, client) => {
-          assert.equal(connectErr, null);
-          client.close(true);
-          done();
-        });
-      });
-    });
-
-    it('should connect to `localhost:27018 with object`', (done) => {
-      connect(
-        { port: 27018, host: 'localhost' },
-        setupListeners,
-        (err, client) => {
-          assert.equal(err, null);
-          client.close(true);
-          done();
-        }
+      const [
+        connectErr,
+        client,
+        { url, options }
+      ] = await connect(
+        model,
+        setupListeners
       );
+
+      if (connectErr) throw connectErr;
+
+      assert.strictEqual(
+        url,
+        'mongodb://localhost:27018/?readPreference=primary&ssl=false'
+      );
+
+      assert.deepStrictEqual(options, {
+        connectWithNoPrimary: true,
+        directConnection: true,
+        readPreference: 'primary',
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+      });
+
+      client.close(true);
+    });
+
+    it('should connect to `localhost:27018 with model`', async() => {
+      // const buildConnection = promisify();
+      const model = await Connection.from('mongodb://localhost:27018');
+
+      const [
+        connectErr,
+        client
+      ] = await connect(model, setupListeners);
+
+      assert.equal(connectErr, null);
+      client.close(true);
+    });
+
+    it('should connect to `localhost:27018 with object`', async() => {
+      const [ err, client ] = await connect(
+        { port: 27018, host: 'localhost' },
+        setupListeners
+      );
+      assert.equal(err, null);
+      client.close(true);
     });
 
     describe('ssh tunnel failures', () => {
@@ -86,7 +87,7 @@ describe('connection model connector', () => {
       const MockConnection = mock.reRequire('../lib/extended-model');
       const mockConnect = mock.reRequire('../lib/connect');
 
-      it('should close ssh tunnel if the connection fails', (done) => {
+      it('should close ssh tunnel if the connection fails', async() => {
         const model = new MockConnection({
           hostname: 'localhost',
           port: 27020,
@@ -98,14 +99,13 @@ describe('connection model connector', () => {
         });
 
         assert(model.isValid());
-        mockConnect(model, setupListeners, (err) => {
-          // must throw error here, because the connection details are invalid
-          assert.ok(err);
-          assert.ok(/ECONNREFUSED/.test(err.message));
-          // assert that tunnel.close() was called once
-          assert.ok(spy.calledOnce);
-          done();
-        });
+        const [ err ] = await mockConnect(model, setupListeners);
+
+        // Must throw error here, because the connection details are invalid.
+        assert.ok(err);
+        assert.ok(/ECONNREFUSED/.test(err.message));
+        // Assert that tunnel.close() was called once.
+        assert.ok(spy.calledOnce);
       });
     });
   });
