@@ -27,34 +27,32 @@ console.log(c.driverUrl)
 ```javascript
 const Connection = require('mongodb-connection-model');
 
-Connection.from(
-  'mongodb://someUsername:testPassword@localhost',
-  (error, result) => {
-    console.log(result);
-    >>> `{
-      hosts: [{ host: 'localhost', port: 27017 }],
-      hostname: 'localhost',
-      port: 27017,
-      auth: {
-        username: 'someUsername',
-        password: 'testPassword',
-        db: 'admin'
-      },
-      isSrvRecord: false,
-      authStrategy: 'MONGODB',
-      mongodbUsername: 'someUsername',
-      mongodbPassword: 'testPassword',
-      mongodbDatabaseName: 'admin',
-      extraOptions: {},
-      connectionType: 'NODE_DRIVER',
-      readPreference: 'primary',
-      kerberosCanonicalizeHostname: false,
-      sslMethod: 'NONE',
-      sshTunnel: 'NONE',
-      sshTunnelPort: 22
-    }`
-  }
+const result = await Connection.from(
+  'mongodb://someUsername:testPassword@localhost'
 );
+console.log(result);
+>>> `{
+  hosts: [{ host: 'localhost', port: 27017 }],
+  hostname: 'localhost',
+  port: 27017,
+  auth: {
+    username: 'someUsername',
+    password: 'testPassword',
+    db: 'admin'
+  },
+  isSrvRecord: false,
+  authStrategy: 'MONGODB',
+  mongodbUsername: 'someUsername',
+  mongodbPassword: 'testPassword',
+  mongodbDatabaseName: 'admin',
+  extraOptions: {},
+  connectionType: 'NODE_DRIVER',
+  readPreference: 'primary',
+  kerberosCanonicalizeHostname: false,
+  sslMethod: 'NONE',
+  sshTunnel: 'NONE',
+  sshTunnelPort: 22
+}`
 ```
 
 ## Properties

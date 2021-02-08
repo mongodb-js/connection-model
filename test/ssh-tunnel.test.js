@@ -285,18 +285,15 @@ describe('sshTunnel', function () {
         assert(c.isValid());
       });
 
-      it('should inject ssh tunnel port', (done) => {
+      it('should inject ssh tunnel port', async() => {
         assert.equal(
           c.driverUrl,
           'mongodb://mongodb.my-internal-host.com:27000/?readPreference=primary&ssl=false'
         );
 
-        Connection.from(c.driverUrlWithSsh, (error, sshModel) => {
-          assert(!error);
-          assert.equal(sshModel.hostname, '127.0.0.1');
-          assert.notEqual(c.port, sshModel.port);
-          done();
-        });
+        const sshModel = await Connection.from(c.driverUrlWithSsh);
+        assert.equal(sshModel.hostname, '127.0.0.1');
+        assert.notEqual(c.port, sshModel.port);
       });
 
       describe('sshTunnelOptions', () => {

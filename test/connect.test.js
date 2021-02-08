@@ -4,7 +4,6 @@ const Connection = require('../');
 const connect = Connection.connect;
 const mock = require('mock-require');
 const sinon = require('sinon');
-const { promisify } = require('util');
 
 const setupListeners = () => {};
 
@@ -22,7 +21,6 @@ describe('connection model connector', () => {
     );
 
     it('should return connection config when connected successfully', async() => {
-      // const buildConnection = promisify(Connection.from);
       const model = await Connection.from('mongodb://localhost:27018');
 
       const [
@@ -77,10 +75,8 @@ describe('connection model connector', () => {
     describe('ssh tunnel failures', () => {
       const spy = sinon.spy();
 
-      mock('../lib/ssh-tunnel', (model, cb) => {
-        // simulate successful tunnel creation
-        cb();
-        // then return a mocked tunnel object with a spy close() function
+      mock('../lib/ssh-tunnel', () => {
+        // Return a mocked tunnel object with a spy close() function.
         return { close: spy };
       });
 
