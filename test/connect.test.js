@@ -111,7 +111,6 @@ describe('connection model connector', () => {
     });
 
     it('should connect to `localhost:27018 with model`', async() => {
-      // const buildConnection = promisify();
       const model = await Connection.from('mongodb://localhost:27018');
 
       const [
