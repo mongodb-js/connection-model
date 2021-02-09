@@ -1,16 +1,79 @@
-/* eslint no-console:0 */
 const assert = require('assert');
 const Connection = require('../');
 const connect = Connection.connect;
+const { createConnectionOptions } = require('../lib/connect');
 const mock = require('mock-require');
 const sinon = require('sinon');
+const fixture = require('mongodb-connection-fixture');
+const fs = require('fs');
 
 const setupListeners = () => {};
 
 // TODO: These instances are now turned off
 const data = require('mongodb-connection-fixture');
+const { expect } = require('chai');
 
 describe('connection model connector', () => {
+  describe('#createConnectionOptions', () => {
+    let expectedCA;
+    let expectedClient;
+
+    before(() => {
+      /* eslint-disable no-sync */
+      expectedCA = fs.readFileSync(fixture.ssl.ca);
+      expectedClient = fs.readFileSync(fixture.ssl.client);
+      /* eslint-enable no-sync */
+    });
+
+
+    it('should load ssl files into buffers', async() => {
+      const model = new Connection({
+        sslMethod: 'ALL',
+        sslCA: fixture.ssl.ca,
+        sslCert: fixture.ssl.client,
+        sslKey: fixture.ssl.client
+      });
+
+      const connectionOptions = await createConnectionOptions(model);
+
+      expect(
+        connectionOptions.sslCA
+      ).to.deep.equal(expectedCA);
+      expect(
+        connectionOptions.sslCert
+      ).to.deep.equal(expectedClient);
+      expect(
+        connectionOptions.sslKey
+      ).to.deep.equal(expectedClient);
+    });
+
+    it('should load ssl files that are arrays into buffers', async() => {
+      const model = new Connection({
+        sslMethod: 'ALL',
+        sslCA: [fixture.ssl.ca],
+        sslCert: [fixture.ssl.client],
+        sslKey: [fixture.ssl.client]
+      });
+
+      const connectionOptions = await createConnectionOptions(model);
+
+      /* eslint-disable no-sync */
+      expectedCA = fs.readFileSync(fixture.ssl.ca);
+      expectedClient = fs.readFileSync(fixture.ssl.client);
+      /* eslint-enable no-sync */
+
+      expect(
+        connectionOptions.sslCA
+      ).to.deep.equal(expectedCA);
+      expect(
+        connectionOptions.sslCert
+      ).to.deep.equal(expectedClient);
+      expect(
+        connectionOptions.sslKey
+      ).to.deep.equal(expectedClient);
+    });
+  });
+
   describe('local', () => {
     before(
       require('mongodb-runner/mocha/before')({ port: 27018, version: '4.0.0' })
