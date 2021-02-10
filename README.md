@@ -27,34 +27,32 @@ console.log(c.driverUrl)
 ```javascript
 const Connection = require('mongodb-connection-model');
 
-Connection.from(
-  'mongodb://someUsername:testPassword@localhost',
-  (error, result) => {
-    console.log(result);
-    >>> `{
-      hosts: [{ host: 'localhost', port: 27017 }],
-      hostname: 'localhost',
-      port: 27017,
-      auth: {
-        username: 'someUsername',
-        password: 'testPassword',
-        db: 'admin'
-      },
-      isSrvRecord: false,
-      authStrategy: 'MONGODB',
-      mongodbUsername: 'someUsername',
-      mongodbPassword: 'testPassword',
-      mongodbDatabaseName: 'admin',
-      extraOptions: {},
-      connectionType: 'NODE_DRIVER',
-      readPreference: 'primary',
-      kerberosCanonicalizeHostname: false,
-      sslMethod: 'NONE',
-      sshTunnel: 'NONE',
-      sshTunnelPort: 22
-    }`
-  }
+const result = await Connection.from(
+  'mongodb://someUsername:testPassword@localhost'
 );
+console.log(result);
+>>> `{
+  hosts: [{ host: 'localhost', port: 27017 }],
+  hostname: 'localhost',
+  port: 27017,
+  auth: {
+    username: 'someUsername',
+    password: 'testPassword',
+    db: 'admin'
+  },
+  isSrvRecord: false,
+  authStrategy: 'MONGODB',
+  mongodbUsername: 'someUsername',
+  mongodbPassword: 'testPassword',
+  mongodbDatabaseName: 'admin',
+  extraOptions: {},
+  connectionType: 'NODE_DRIVER',
+  readPreference: 'primary',
+  kerberosCanonicalizeHostname: false,
+  sslMethod: 'NONE',
+  sshTunnel: 'NONE',
+  sshTunnelPort: 22
+}`
 ```
 
 ## Properties
@@ -415,9 +413,6 @@ This will log the following events to the console:
 ```javascript
 >>> status: { message: 'Validate', pending: true }
 >>> status: { message: 'Validate', complete: true }
->>> status: { message: 'Load SSL files', pending: true }
->>> status: { message: 'Load SSL files', skipped: true,
-  reason: 'The selected SSL mode does not need to load any files.' }
 >>> status: { message: 'Create SSH Tunnel', pending: true }
 >>> status: { message: 'Create SSH Tunnel', complete: true}
 >>> status: { message: 'Connect to MongoDB', pending: true }
@@ -445,8 +440,6 @@ This will log the following events to the console:
 ```javascript
 >>> status: { message: 'Validate', pending: true }
 >>> status: { message: 'Validate', complete: true }
->>> status: { message: 'Load SSL files', pending: true }
->>> status: { message: 'Load SSL files', complete: true}
 >>> status: { message: 'Create SSH Tunnel', pending: true }
 >>> status: { message: 'Create SSH Tunnel', skipped: true,
   reason: 'The selected SSH Tunnel mode is NONE.'}

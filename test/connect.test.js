@@ -1,16 +1,79 @@
-/* eslint no-console:0 */
 const assert = require('assert');
 const Connection = require('../');
 const connect = Connection.connect;
+const { createConnectionOptions } = require('../lib/connect');
 const mock = require('mock-require');
 const sinon = require('sinon');
+const fixture = require('mongodb-connection-fixture');
+const fs = require('fs');
 
 const setupListeners = () => {};
 
 // TODO: These instances are now turned off
 const data = require('mongodb-connection-fixture');
+const { expect } = require('chai');
 
 describe('connection model connector', () => {
+  describe('#createConnectionOptions', () => {
+    let expectedCA;
+    let expectedClient;
+
+    before(() => {
+      /* eslint-disable no-sync */
+      expectedCA = fs.readFileSync(fixture.ssl.ca);
+      expectedClient = fs.readFileSync(fixture.ssl.client);
+      /* eslint-enable no-sync */
+    });
+
+
+    it('should load ssl files into buffers', async() => {
+      const model = new Connection({
+        sslMethod: 'ALL',
+        sslCA: fixture.ssl.ca,
+        sslCert: fixture.ssl.client,
+        sslKey: fixture.ssl.client
+      });
+
+      const connectionOptions = await createConnectionOptions(model);
+
+      expect(
+        connectionOptions.sslCA
+      ).to.deep.equal(expectedCA);
+      expect(
+        connectionOptions.sslCert
+      ).to.deep.equal(expectedClient);
+      expect(
+        connectionOptions.sslKey
+      ).to.deep.equal(expectedClient);
+    });
+
+    it('should load ssl files that are arrays into buffers', async() => {
+      const model = new Connection({
+        sslMethod: 'ALL',
+        sslCA: [fixture.ssl.ca],
+        sslCert: [fixture.ssl.client],
+        sslKey: [fixture.ssl.client]
+      });
+
+      const connectionOptions = await createConnectionOptions(model);
+
+      /* eslint-disable no-sync */
+      expectedCA = fs.readFileSync(fixture.ssl.ca);
+      expectedClient = fs.readFileSync(fixture.ssl.client);
+      /* eslint-enable no-sync */
+
+      expect(
+        connectionOptions.sslCA
+      ).to.deep.equal(expectedCA);
+      expect(
+        connectionOptions.sslCert
+      ).to.deep.equal(expectedClient);
+      expect(
+        connectionOptions.sslKey
+      ).to.deep.equal(expectedClient);
+    });
+  });
+
   describe('local', () => {
     before(
       require('mongodb-runner/mocha/before')({ port: 27018, version: '4.0.0' })
@@ -20,73 +83,63 @@ describe('connection model connector', () => {
       require('mongodb-runner/mocha/after')({ port: 27018, version: '4.0.0' })
     );
 
-    it('should return connection config when connected successfully', (done) => {
-      Connection.from('mongodb://localhost:27018', (parseErr, model) => {
-        if (parseErr) throw parseErr;
+    it('should return connection config when connected successfully', async() => {
+      const model = await Connection.from('mongodb://localhost:27018');
 
-        connect(
-          model,
-          setupListeners,
-          (connectErr, client, { url, options }) => {
-            if (connectErr) throw connectErr;
-
-            assert.strictEqual(
-              url,
-              'mongodb://localhost:27018/?readPreference=primary&ssl=false'
-            );
-
-            assert.deepStrictEqual(options, {
-              connectWithNoPrimary: true,
-              directConnection: true,
-              readPreference: 'primary',
-              useNewUrlParser: true,
-              useUnifiedTopology: true
-            });
-
-            client.close(true);
-            done();
-          }
-        );
-      });
-    });
-
-    it('should connect to `localhost:27018 with model`', (done) => {
-      Connection.from('mongodb://localhost:27018', (parseErr, model) => {
-        assert.equal(parseErr, null);
-        connect(model, setupListeners, (connectErr, client) => {
-          assert.equal(connectErr, null);
-          client.close(true);
-          done();
-        });
-      });
-    });
-
-    it('should connect to `localhost:27018 with object`', (done) => {
-      connect(
-        { port: 27018, host: 'localhost' },
-        setupListeners,
-        (err, client) => {
-          assert.equal(err, null);
-          client.close(true);
-          done();
-        }
+      const [
+        client,
+        { url, options }
+      ] = await connect(
+        model,
+        setupListeners
       );
+
+      assert.strictEqual(
+        url,
+        'mongodb://localhost:27018/?readPreference=primary&ssl=false'
+      );
+
+      assert.deepStrictEqual(options, {
+        connectWithNoPrimary: true,
+        directConnection: true,
+        readPreference: 'primary',
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+      });
+
+      client.close(true);
+    });
+
+    it('should connect to `localhost:27018 with model`', async() => {
+      const model = await Connection.from('mongodb://localhost:27018');
+
+      const [
+        client
+      ] = await connect(model, setupListeners);
+
+      client.close(true);
+    });
+
+    it('should connect to `localhost:27018 with object`', async() => {
+      const [ client ] = await connect(
+        { port: 27018, host: 'localhost' },
+        setupListeners
+      );
+      client.close(true);
     });
 
     describe('ssh tunnel failures', () => {
       const spy = sinon.spy();
 
-      mock('../lib/ssh-tunnel', (model, cb) => {
-        // simulate successful tunnel creation
-        cb();
-        // then return a mocked tunnel object with a spy close() function
+      mock('../lib/ssh-tunnel', () => {
+        // Return a mocked tunnel object with a spy close() function.
         return { close: spy };
       });
 
       const MockConnection = mock.reRequire('../lib/extended-model');
       const mockConnect = mock.reRequire('../lib/connect');
 
-      it('should close ssh tunnel if the connection fails', (done) => {
+      it('should close ssh tunnel if the connection fails', async() => {
         const model = new MockConnection({
           hostname: 'localhost',
           port: 27020,
@@ -98,14 +151,16 @@ describe('connection model connector', () => {
         });
 
         assert(model.isValid());
-        mockConnect(model, setupListeners, (err) => {
-          // must throw error here, because the connection details are invalid
+        try {
+          await mockConnect(model, setupListeners);
+          assert(false);
+        } catch (err) {
+          // Must throw error here, because the connection details are invalid.
           assert.ok(err);
           assert.ok(/ECONNREFUSED/.test(err.message));
-          // assert that tunnel.close() was called once
+          // Assert that tunnel.close() was called once.
           assert.ok(spy.calledOnce);
-          done();
-        });
+        }
       });
     });
   });

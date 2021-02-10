@@ -101,7 +101,7 @@ const tests = [
     expectedConnectionString:
       'mongodb://%40rlo@localhost:27017/?' +
       'gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&' +
-      'authSource=%24external&ssl=false&authSource=$external'
+      'authSource=%24external&ssl=false'
   },
   {
     description: 'with authMechanismProperties and gssapiServiceName',
@@ -109,7 +109,7 @@ const tests = [
       'mongodb://%40rlo@localhost:27017/?' +
       'gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&' +
       'authSource=%24external&authMechanismProperties=CANONICALIZE_HOST_NAME%3Atrue&' +
-      'gssapiCanonicalizeHostName=true&ssl=false&authSource=$external'
+      'gssapiCanonicalizeHostName=true&ssl=false'
   },
   {
     description:
@@ -145,15 +145,13 @@ const tests = [
 describe('connection model', () => {
   describe('should parse a connection string and build the same string back', function () {
     tests.forEach(function (test) {
-      const runTest = (done) =>
-        Connection.from(test.connectionString, (error, result) => {
-          expect(error).to.not.exist;
+      const runTest = async() => {
+        const result = await Connection.from(test.connectionString);
 
-          const c = new Connection(result.toJSON());
+        const c = new Connection(result.toJSON());
 
-          expect(c.driverUrl).to.be.equal(test.expectedConnectionString || test.connectionString);
-          done();
-        });
+        expect(c.driverUrl).to.be.equal(test.expectedConnectionString || test.connectionString);
+      };
       const runMode = test.only ? it.only : it;
       runMode(test.description, runTest);
     });

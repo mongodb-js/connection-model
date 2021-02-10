@@ -1,40 +1,33 @@
 const Connection = require('../');
+const { URL } = require('url');
 const chai = require('chai');
 const fixture = require('mongodb-connection-fixture');
-const fs = require('fs');
 const expect = chai.expect;
-const loadOptions = Connection.connect.loadOptions;
-const getTasks = Connection.connect.getTasks;
 const encodeURIComponentRFC3986 = Connection.encodeURIComponentRFC3986;
 
 chai.use(require('chai-subset'));
 
 describe('Connection model builder', () => {
   context('when building URI', () => {
-    it('should include default host, port, readPreference and ssl', (done) => {
+    it('should include default host, port, readPreference and ssl', async() => {
       const c = new Connection();
 
       expect(c.driverUrl).to.be.equal(
         'mongodb://localhost:27017/?readPreference=primary&ssl=false'
       );
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      await Connection.from(c.driverUrl);
     });
 
-    it('should include appname', (done) => {
+    it('should include appname', async() => {
       const c = new Connection({ appname: 'My App' });
 
       expect(c.driverUrl).to.be.equal(
         'mongodb://localhost:27017/?readPreference=primary&appname=My%20App&ssl=false'
       );
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(c.driverUrl).to.be.equal(model.driverUrl);
     });
 
     it('should include srv prefix', () => {
@@ -45,46 +38,39 @@ describe('Connection model builder', () => {
       );
     });
 
-    it('should include replicaSet', (done) => {
+    it('should include replicaSet', async() => {
       const c = new Connection({ appname: 'My App', replicaSet: 'testing' });
 
       expect(c.driverUrl).to.be.equal(
         'mongodb://localhost:27017/?replicaSet=testing&readPreference=primary&appname=My%20App&ssl=false'
       );
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      await Connection.from(c.driverUrl);
     });
 
-    it('does not include empty replicaSet', (done) => {
+    it('does not include empty replicaSet', async() => {
       const c = new Connection({ appname: 'My App', replicaSet: '' });
 
       expect(c.driverUrl).to.be.equal(
         'mongodb://localhost:27017/?readPreference=primary&appname=My%20App&ssl=false'
       );
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(c.driverUrl).to.be.equal(model.driverUrl);
     });
 
-    it('should include sslMethod equal NONE', (done) => {
+    it('should include sslMethod equal NONE', async() => {
       const c = new Connection({ sslMethod: 'NONE' });
 
       expect(c.driverUrl).to.be.equal(
         'mongodb://localhost:27017/?readPreference=primary&ssl=false'
       );
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(c.driverUrl).to.be.equal(model.driverUrl);
     });
 
-    it('should include sslMethod equal UNVALIDATED', (done) => {
+    it('should include sslMethod equal UNVALIDATED', async() => {
       const c = new Connection({ sslMethod: 'UNVALIDATED' });
       const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
         checkServerIdentity: false,
@@ -98,13 +84,11 @@ describe('Connection model builder', () => {
       );
       expect(c.driverOptions).to.deep.equal(options);
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(c.driverUrl).to.be.equal(model.driverUrl);
     });
 
-    it('should include sslMethod equal SYSTEMCA', (done) => {
+    it('should include sslMethod equal SYSTEMCA', async() => {
       const c = new Connection({ sslMethod: 'SYSTEMCA' });
       const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
         checkServerIdentity: true,
@@ -118,13 +102,11 @@ describe('Connection model builder', () => {
       );
       expect(c.driverOptions).to.deep.equal(options);
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(c.driverUrl).to.be.equal(model.driverUrl);
     });
 
-    it('should include sslMethod equal IFAVAILABLE', (done) => {
+    it('should include sslMethod equal IFAVAILABLE', async() => {
       const c = new Connection({ sslMethod: 'IFAVAILABLE' });
       const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
         checkServerIdentity: false,
@@ -138,13 +120,11 @@ describe('Connection model builder', () => {
       );
       expect(c.driverOptions).to.deep.equal(options);
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(c.driverUrl).to.be.equal(model.driverUrl);
     });
 
-    it('should include sslMethod equal SERVER', (done) => {
+    it('should include sslMethod equal SERVER', async() => {
       const c = new Connection({ sslMethod: 'SERVER', sslCA: fixture.ssl.ca });
       const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
         sslCA: [fixture.ssl.ca],
@@ -158,13 +138,11 @@ describe('Connection model builder', () => {
       );
       expect(c.driverOptions).to.deep.equal(options);
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(c.driverUrl).to.be.equal(model.driverUrl);
     });
 
-    it('should include sslMethod equal ALL and authMechanism equal X509', (done) => {
+    it('should include sslMethod equal ALL and authMechanism equal X509', async() => {
       const c = new Connection({
         sslMethod: 'ALL',
         sslCA: fixture.ssl.ca,
@@ -188,13 +166,13 @@ describe('Connection model builder', () => {
       );
       expect(c.driverOptions).to.deep.equal(options);
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(
+        new URL(c.driverUrl).searchParams
+      ).to.deep.equal(new URL(model.driverUrl).searchParams);
     });
 
-    it('should include sslMethod equal ALL and passwordless private keys', (done) => {
+    it('should include sslMethod equal ALL and passwordless private keys', () => {
       const c = new Connection({
         sslMethod: 'ALL',
         sslCA: fixture.ssl.ca,
@@ -214,28 +192,9 @@ describe('Connection model builder', () => {
         'mongodb://localhost:27017/?readPreference=primary&ssl=true'
       );
       expect(c.driverOptions).to.deep.equal(options);
-
-      /* eslint-disable no-sync */
-      const expectAfterLoad = {
-        sslCA: [fs.readFileSync(fixture.ssl.ca)],
-        sslCert: fs.readFileSync(fixture.ssl.server),
-        sslKey: fs.readFileSync(fixture.ssl.server),
-        sslValidate: true,
-        connectWithNoPrimary: true,
-        readPreference: 'primary'
-      };
-      /* eslint-enable no-sync */
-      const tasks = getTasks(c);
-      // Trigger relevant side-effect, loading the SSL files into memory.
-      // eslint-disable-next-line new-cap
-      tasks['Load SSL files'](function () {
-        // Read files into memory as the connect function does
-        expect(tasks.driverOptions).to.deep.equal(expectAfterLoad);
-        done();
-      });
     });
 
-    it('should include sslMethod equal ALL and password protected private keys', (done) => {
+    it('should include sslMethod equal ALL and password protected private keys', async() => {
       const c = new Connection({
         sslMethod: 'ALL',
         sslCA: fixture.ssl.ca,
@@ -258,24 +217,21 @@ describe('Connection model builder', () => {
       );
       expect(c.driverOptions).to.deep.equal(options);
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(c.driverUrl).to.be.equal(model.driverUrl);
     });
 
-    it('should convert sslCA into an array', (done) => {
+    it('should convert sslCA into an array', async() => {
       const c = new Connection({ sslCA: fixture.ssl.ca });
 
       expect(Array.isArray(c.sslCA)).to.be.equal(true);
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(c.driverUrl).to.be.equal(model.driverUrl);
+      expect(c.driverOptions).to.deep.equal(model.driverOptions);
     });
 
-    it('should urlencode credentials when using SCRAM-SHA-256 auth', (done) => {
+    it('should urlencode credentials when using SCRAM-SHA-256 auth', async() => {
       const c = new Connection({
         mongodbUsername: '@rlo',
         mongodbPassword: 'w@of',
@@ -286,13 +242,12 @@ describe('Connection model builder', () => {
         'mongodb://%40rlo:w%40of@localhost:27017/?authSource=admin&authMechanism=SCRAM-SHA-256&readPreference=primary&ssl=false'
       );
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(c.driverUrl).to.be.equal(model.driverUrl);
+      expect(c.driverOptions).to.deep.equal(model.driverOptions);
     });
 
-    it('should urlencode credentials when using no auth', (done) => {
+    it('should urlencode credentials when using no auth', async() => {
       const c = new Connection({
         mongodbUsername: '@rlo',
         mongodbPassword: 'w@of'
@@ -302,13 +257,12 @@ describe('Connection model builder', () => {
         'mongodb://%40rlo:w%40of@localhost:27017/?authSource=admin&readPreference=primary&ssl=false'
       );
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(c.driverUrl).to.be.equal(model.driverUrl);
+      expect(c.driverOptions).to.deep.equal(model.driverOptions);
     });
 
-    it('should urlencode credentials when using MONGODB auth', (done) => {
+    it('should urlencode credentials when using MONGODB auth', async() => {
       const mongodbUsername = 'user';
       const mongodbPassword = 'C;Ib86n5b8{AnExew[TU%XZy,)E6G!dk';
       const c = new Connection({ mongodbUsername, mongodbPassword });
@@ -317,13 +271,12 @@ describe('Connection model builder', () => {
         'mongodb://user:C%3BIb86n5b8%7BAnExew%5BTU%25XZy%2C%29E6G%21dk@localhost:27017/?authSource=admin&readPreference=primary&ssl=false'
       );
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(c.driverUrl).to.be.equal(model.driverUrl);
+      expect(c.driverOptions).to.deep.equal(model.driverOptions);
     });
 
-    it('should urlencode credentials when using MONGODB auth with emoji 💕', (done) => {
+    it('should urlencode credentials when using MONGODB auth with emoji 💕', async() => {
       const mongodbUsername = '👌emoji😂😍😘🔥💕🎁💯🌹';
       const mongodbPassword = '👌emoji😂😍😘🔥💕🎁💯🌹';
       const c = new Connection({ mongodbUsername, mongodbPassword });
@@ -338,13 +291,11 @@ describe('Connection model builder', () => {
         ].join('')
       );
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(c.driverUrl).to.be.equal(model.driverUrl);
     });
 
-    it('should urlencode credentials when using LDAP auth', (done) => {
+    it('should urlencode credentials when using LDAP auth', async() => {
       const ldapUsername = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
       const ldapPassword = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
       const c = new Connection({ ldapUsername, ldapPassword });
@@ -356,13 +307,13 @@ describe('Connection model builder', () => {
         ].join('')
       );
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(
+        new URL(c.driverUrl).searchParams
+      ).to.deep.equal(new URL(model.driverUrl).searchParams);
     });
 
-    it('should urlencode credentials when using KERBEROS auth', (done) => {
+    it('should urlencode credentials when using KERBEROS auth', async() => {
       const kerberosPrincipal = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
       const c = new Connection({ kerberosPrincipal });
 
@@ -373,13 +324,13 @@ describe('Connection model builder', () => {
         ].join('')
       );
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(
+        new URL(c.driverUrl).searchParams
+      ).to.deep.equal(new URL(model.driverUrl).searchParams);
     });
 
-    it('should urlencode credentials when using KERBEROS auth with canonicalizing the host name', (done) => {
+    it('should urlencode credentials when using KERBEROS auth with canonicalizing the host name', async() => {
       const kerberosPrincipal = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
       const c = new Connection({
         kerberosCanonicalizeHostname: true,
@@ -393,26 +344,26 @@ describe('Connection model builder', () => {
         ].join('')
       );
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(
+        new URL(c.driverUrl).searchParams
+      ).to.deep.equal(new URL(model.driverUrl).searchParams);
     });
 
-    it('should replace default readPreference with a custom value', (done) => {
+    it('should replace default readPreference with a custom value', async() => {
       const c = new Connection({ readPreference: 'secondary' });
 
       expect(c.driverUrl).to.be.equal(
         'mongodb://localhost:27017/?readPreference=secondary&ssl=false'
       );
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(
+        new URL(c.driverUrl).searchParams
+      ).to.deep.equal(new URL(model.driverUrl).searchParams);
     });
 
-    it('should build safeUrl for LDAP auth', (done) => {
+    it('should build safeUrl for LDAP auth', async() => {
       const attrs = {
         ldapUsername: 'ldap-user',
         ldapPassword: 'ldap-password',
@@ -427,13 +378,13 @@ describe('Connection model builder', () => {
         'mongodb://ldap-user:*****@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external'
       );
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(
+        new URL(c.driverUrl).searchParams
+      ).to.deep.equal(new URL(model.driverUrl).searchParams);
     });
 
-    it('should include non-dependent attribute', (done) => {
+    it('should include non-dependent attribute', async() => {
       const c = new Connection({ authStrategy: 'LDAP' });
 
       c.ldapUsername = 'ldap-user';
@@ -443,13 +394,13 @@ describe('Connection model builder', () => {
         'mongodb://ldap-user:ldap-password@localhost:27017/?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external'
       );
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(
+        new URL(c.driverUrl).searchParams
+      ).to.deep.equal(new URL(model.driverUrl).searchParams);
     });
 
-    it('should urlencode ldapPassword when using LDAP auth', (done) => {
+    it('should urlencode ldapPassword when using LDAP auth', async() => {
       const c = new Connection({
         authStrategy: 'LDAP',
         ldapUsername: 'arlo',
@@ -462,13 +413,13 @@ describe('Connection model builder', () => {
         'mongodb://arlo:w%40of@localhost:27017/ldap?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external'
       );
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(
+        new URL(c.driverUrl).searchParams
+      ).to.deep.equal(new URL(model.driverUrl).searchParams);
     });
 
-    it('should urlencode ldapUsername when using LDAP auth', (done) => {
+    it('should urlencode ldapUsername when using LDAP auth', async() => {
       // COMPASS-745 - should urlencode @ once onl
       const c = new Connection({
         authStrategy: 'LDAP',
@@ -482,13 +433,13 @@ describe('Connection model builder', () => {
         'mongodb://arlo%40t.co:woof@localhost:27017/ldap?authMechanism=PLAIN&readPreference=primary&ssl=false&authSource=$external'
       );
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(
+        new URL(c.driverUrl).searchParams
+      ).to.deep.equal(new URL(model.driverUrl).searchParams);
     });
 
-    it('should urlencode credentials when using X509 auth', (done) => {
+    it('should urlencode credentials when using X509 auth', async() => {
       const c = new Connection({
         authStrategy: 'X509',
         x509Username:
@@ -502,13 +453,13 @@ describe('Connection model builder', () => {
           '?authMechanism=MONGODB-X509&readPreference=primary&ssl=false&authSource=$external'
       );
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(
+        new URL(c.driverUrl).searchParams
+      ).to.deep.equal(new URL(model.driverUrl).searchParams);
     });
 
-    it('should not include credentials when using X509 auth and there is no username', (done) => {
+    it('should not include credentials when using X509 auth and there is no username', async() => {
       const c = new Connection({
         authStrategy: 'X509'
       });
@@ -519,16 +470,16 @@ describe('Connection model builder', () => {
           '&readPreference=primary&ssl=false&authSource=$external'
       );
 
-      Connection.from(c.driverUrl, (error) => {
-        expect(error).to.not.exist;
-        done();
-      });
+      const model = await Connection.from(c.driverUrl);
+      expect(
+        new URL(c.driverUrl).searchParams
+      ).to.deep.equal(new URL(model.driverUrl).searchParams);
     });
   });
 
   context('when building a connection object', () => {
     context('authStrategy', () => {
-      it('should set authStrategy to SCRAM-SHA-256', (done) => {
+      it('should set authStrategy to SCRAM-SHA-256', async() => {
         const c = new Connection({
           mongodbUsername: 'arlo',
           mongodbPassword: 'woof',
@@ -537,13 +488,12 @@ describe('Connection model builder', () => {
 
         expect(c.authStrategy).to.be.equal('SCRAM-SHA-256');
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(c.driverUrl).to.be.equal(model.driverUrl);
+        expect(c.driverOptions).to.deep.equal(model.driverOptions);
       });
 
-      it('should set default admin authSource when using SCRAM-SHA-256 auth', (done) => {
+      it('should set default admin authSource when using SCRAM-SHA-256 auth', async() => {
         const attrs = {
           mongodbUsername: 'arlo',
           mongodbPassword: 'woof',
@@ -555,13 +505,12 @@ describe('Connection model builder', () => {
           'mongodb://arlo:woof@localhost:27017/?authSource=admin&authMechanism=SCRAM-SHA-256&readPreference=primary&ssl=false'
         );
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(c.driverUrl).to.be.equal(model.driverUrl);
+        expect(c.driverOptions).to.deep.equal(model.driverOptions);
       });
 
-      it('should build safeUrl for SCRAM-SHA-256 auth', (done) => {
+      it('should build safeUrl for SCRAM-SHA-256 auth', async() => {
         const attrs = {
           mongodbUsername: 'arlo',
           mongodbPassword: 'woof',
@@ -576,10 +525,9 @@ describe('Connection model builder', () => {
           'mongodb://arlo:*****@localhost:27017/?authSource=admin&authMechanism=SCRAM-SHA-256&readPreference=primary&ssl=false'
         );
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(c.driverUrl).to.be.equal(model.driverUrl);
+        expect(c.driverOptions).to.deep.equal(model.driverOptions);
       });
 
       it('should throw the error if auth is SCRAM-SHA-256 and mongodbUsername is missing', () => {
@@ -621,7 +569,7 @@ describe('Connection model builder', () => {
         );
       });
 
-      it('should set authStrategy to MONGODB', (done) => {
+      it('should set authStrategy to MONGODB', async() => {
         const c = new Connection({
           mongodbUsername: 'arlo',
           mongodbPassword: 'woof'
@@ -629,13 +577,12 @@ describe('Connection model builder', () => {
 
         expect(c.authStrategy).to.be.equal('MONGODB');
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(c.driverUrl).to.be.equal(model.driverUrl);
+        expect(c.driverOptions).to.deep.equal(model.driverOptions);
       });
 
-      it('should set default admin authSource when using MONGODB auth', (done) => {
+      it('should set default admin authSource when using MONGODB auth', async() => {
         const attrs = {
           authStrategy: 'MONGODB',
           mongodbUsername: 'user',
@@ -647,13 +594,12 @@ describe('Connection model builder', () => {
           'mongodb://user:somepass@localhost:27017/?authSource=admin&readPreference=primary&ssl=false'
         );
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(c.driverUrl).to.be.equal(model.driverUrl);
+        expect(c.driverOptions).to.deep.equal(model.driverOptions);
       });
 
-      it('should build safeUrl for MONGODB auth', (done) => {
+      it('should build safeUrl for MONGODB auth', async() => {
         const attrs = {
           authStrategy: 'MONGODB',
           mongodbUsername: 'user',
@@ -668,10 +614,9 @@ describe('Connection model builder', () => {
           'mongodb://user:*****@localhost:27017/?authSource=admin&readPreference=primary&ssl=false'
         );
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(c.driverUrl).to.be.equal(model.driverUrl);
+        expect(c.driverOptions).to.deep.equal(model.driverOptions);
       });
 
       it('should throw the error if auth is MONGODB and mongodbUsername is missing', () => {
@@ -683,7 +628,7 @@ describe('Connection model builder', () => {
         expect(error.message).to.include('The \'Username\' field is required when using \'Username/Password\' or \'SCRAM-SHA-256\' for authentication.');
       });
 
-      it('should throw the error if auth is MONGODB and mongodbPassword is missing', (done) => {
+      it('should throw the error if auth is MONGODB and mongodbPassword is missing', async() => {
         const c = new Connection({
           mongodbUsername: 'arlo',
           mongodbPassword: 'woof'
@@ -693,10 +638,9 @@ describe('Connection model builder', () => {
           Connection.MONGODB_DATABASE_NAME_DEFAULT
         );
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(c.driverUrl).to.be.equal(model.driverUrl);
+        expect(c.driverOptions).to.deep.equal(model.driverOptions);
       });
 
       it('should add a real password to driver url', () => {
@@ -711,7 +655,7 @@ describe('Connection model builder', () => {
         expect(c.driverUrl).to.be.equal(c.driverUrlWithSsh);
       });
 
-      it('should set authStrategy to LDAP', (done) => {
+      it('should set authStrategy to LDAP', async() => {
         const c = new Connection({
           ldapUsername: 'arlo',
           ldapPassword: 'w@of'
@@ -719,10 +663,11 @@ describe('Connection model builder', () => {
 
         expect(c.authStrategy).to.be.equal('LDAP');
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(
+          new URL(c.driverUrl).searchParams
+        ).to.deep.equal(new URL(model.driverUrl).searchParams);
+        expect(c.driverOptions).to.deep.equal(model.driverOptions);
       });
 
       it('should throw the error if auth is LDAP and ldapUsername is missing', () => {
@@ -743,7 +688,7 @@ describe('Connection model builder', () => {
         expect(error.message).to.equal('The \'Password\' field is required when using LDAP for authentication.');
       });
 
-      it('should set authStrategy to X509', (done) => {
+      it('should set authStrategy to X509', async() => {
         const c = new Connection({
           x509Username:
             'CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US'
@@ -751,10 +696,11 @@ describe('Connection model builder', () => {
 
         expect(c.authStrategy).to.be.equal('X509');
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(
+          new URL(c.driverUrl).searchParams
+        ).to.deep.equal(new URL(model.driverUrl).searchParams);
+        expect(c.driverOptions).to.deep.equal(model.driverOptions);
       });
 
       it('should not throw the error if auth is X509 and x509Username is missing', () => {
@@ -781,7 +727,7 @@ describe('Connection model builder', () => {
         expect(error.message).to.equal('SSL method is required to be set to \'Server and Client Validation\' when using X.509 authentication.');
       });
 
-      it('should set default mongodb gssapiServiceName when using KERBEROS auth', (done) => {
+      it('should set default mongodb gssapiServiceName when using KERBEROS auth', async() => {
         const c = new Connection({
           kerberosPrincipal: 'lucas@kerb.mongodb.parts'
         });
@@ -790,23 +736,25 @@ describe('Connection model builder', () => {
           'mongodb://lucas%40kerb.mongodb.parts@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external'
         );
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(
+          new URL(c.driverUrl).searchParams
+        ).to.deep.equal(new URL(model.driverUrl).searchParams);
+        expect(c.driverOptions).to.deep.equal(model.driverOptions);
       });
 
-      it('should set authStrategy to KERBEROS', (done) => {
+      it('should set authStrategy to KERBEROS', async() => {
         const c = new Connection({
           kerberosPrincipal: 'lucas@kerb.mongodb.parts'
         });
 
         expect(c.authStrategy).to.be.equal('KERBEROS');
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(
+          new URL(c.driverUrl).searchParams
+        ).to.deep.equal(new URL(model.driverUrl).searchParams);
+        expect(c.driverOptions).to.deep.equal(model.driverOptions);
       });
 
       it('should throw the error if auth is KERBEROS and kerberosPrincipal is missing', () => {
@@ -828,7 +776,7 @@ describe('Connection model builder', () => {
         expect(c.isValid()).to.be.equal(true);
       });
 
-      it('should build safeUrl for KERBEROS auth when password is specified', (done) => {
+      it('should build safeUrl for KERBEROS auth when password is specified', async() => {
         const attrs = {
           kerberosPrincipal: 'alena@test.test',
           ldapPassword: 'ldap-password',
@@ -842,13 +790,14 @@ describe('Connection model builder', () => {
           'mongodb://alena%40test.test@localhost:27017/?gssapiServiceName=mongodb&authMechanism=GSSAPI&readPreference=primary&ssl=false&authSource=$external'
         );
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(
+          new URL(c.driverUrl).searchParams
+        ).to.deep.equal(new URL(model.driverUrl).searchParams);
+        expect(c.driverOptions).to.deep.equal(model.driverOptions);
       });
 
-      it('should set driverAuthMechanism to GSSAPI when a password is provided', (done) => {
+      it('should set driverAuthMechanism to GSSAPI when a password is provided', async() => {
         const c = new Connection({
           kerberosPrincipal: 'arlo/dog@krb5.mongodb.parts',
           kerberosServiceName: 'mongodb'
@@ -856,13 +805,14 @@ describe('Connection model builder', () => {
 
         expect(c.driverAuthMechanism).to.be.equal('GSSAPI');
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(
+          new URL(c.driverUrl).searchParams
+        ).to.deep.equal(new URL(model.driverUrl).searchParams);
+        expect(c.driverOptions).to.deep.equal(model.driverOptions);
       });
 
-      it('should set driverAuthMechanism to GSSAPI when a password is provided and urlencode the principal', (done) => {
+      it('should set driverAuthMechanism to GSSAPI when a password is provided and urlencode the principal', async() => {
         const c = new Connection({
           kerberosPrincipal: 'arlo/dog@krb5.mongodb.parts',
           kerberosServiceName: 'mongodb'
@@ -875,26 +825,26 @@ describe('Connection model builder', () => {
         expect(c.driverAuthMechanism).to.be.equal('GSSAPI');
         expect(c.driverUrl.indexOf(expectedPrefix)).to.be.equal(0);
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(
+          new URL(c.driverUrl).searchParams
+        ).to.deep.equal(new URL(model.driverUrl).searchParams);
       });
 
-      it('should set driverAuthMechanism to GSSAPI when a password is not provided', (done) => {
+      it('should set driverAuthMechanism to GSSAPI when a password is not provided', async() => {
         const c = new Connection({
           kerberosPrincipal: 'arlo/dog@krb5.mongodb.parts'
         });
 
         expect(c.driverAuthMechanism).to.be.equal('GSSAPI');
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(
+          new URL(c.driverUrl).searchParams
+        ).to.deep.equal(new URL(model.driverUrl).searchParams);
       });
 
-      it('should not include the `:` auth seperator', (done) => {
+      it('should not include the `:` auth seperator', async() => {
         const c = new Connection({
           kerberosPrincipal: 'lucas@kerb.mongodb.parts'
         });
@@ -905,15 +855,15 @@ describe('Connection model builder', () => {
 
         expect(c.driverUrl.indexOf(expectedPrefix)).to.be.equal(0);
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(
+          new URL(c.driverUrl).searchParams
+        ).to.deep.equal(new URL(model.driverUrl).searchParams);
       });
     });
 
     context('top level properties', () => {
-      it('should set the default read preference to primary preferred', (done) => {
+      it('should set the default read preference to primary preferred', async() => {
         const c = new Connection({ appname: 'My App' });
 
         expect(c.driverOptions).to.be.deep.equal({
@@ -921,21 +871,19 @@ describe('Connection model builder', () => {
           connectWithNoPrimary: true
         });
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(c.driverUrl).to.be.equal(model.driverUrl);
+        expect(c.driverOptions).to.deep.equal(model.driverOptions);
       });
 
-      it('should set isSrvRecord defaults to false', (done) => {
+      it('should set isSrvRecord defaults to false', async() => {
         const c = new Connection();
 
         expect(c.isSrvRecord).to.be.equal(false);
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(c.driverUrl).to.be.equal(model.driverUrl);
+        expect(c.driverOptions).to.deep.equal(model.driverOptions);
       });
 
       it('should allow the mongodbDatabaseName to be optional', () => {
@@ -959,48 +907,22 @@ describe('Connection model builder', () => {
         expect(c.driverUrl).to.not.be.equal('');
         expect(c.sshTunnelBindToLocalPort).to.not.exist;
       });
-
-      it('should load all of the files from the filesystem if sslMethod ia ALL', (done) => {
-        const c = new Connection({
-          sslMethod: 'ALL',
-          sslCA: [fixture.ssl.ca],
-          sslCert: fixture.ssl.server,
-          sslKey: fixture.ssl.server
-        });
-
-        loadOptions(c, (error, driverOptions) => {
-          if (error) {
-            return done(error);
-          }
-
-          const opts = driverOptions;
-
-          expect(opts.sslValidate).to.be.equal(true);
-          expect(Array.isArray(opts.sslCA)).to.be.equal(true);
-          expect(Buffer.isBuffer(opts.sslCA[0])).to.be.equal(true);
-          expect(opts.sslPass).to.not.exist;
-          expect(Buffer.isBuffer(opts.sslCert)).to.be.equal(true);
-          expect(Buffer.isBuffer(opts.sslKey)).to.be.equal(true);
-          done();
-        });
-      });
     });
 
     context('extra options', () => {
-      it('should use default driverOptions when there is no extra options', (done) => {
+      it('should use default driverOptions when there is no extra options', async() => {
         const c = new Connection();
 
         expect(c.driverOptions).to.have.property('connectWithNoPrimary');
         expect(c.driverOptions).to.have.property('readPreference');
         expect(c.driverOptions).to.not.have.property('socketTimeoutMS');
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(c.driverUrl).to.be.equal(model.driverUrl);
+        expect(c.driverOptions).to.deep.equal(model.driverOptions);
       });
 
-      it('should include extra options in driverOptions when specified', (done) => {
+      it('should include extra options in driverOptions when specified', async() => {
         const c = new Connection({ extraOptions: { socketTimeoutMS: 1000 } });
         const options = Object.assign({}, Connection.DRIVER_OPTIONS_DEFAULT, {
           socketTimeoutMS: 1000,
@@ -1009,72 +931,63 @@ describe('Connection model builder', () => {
 
         expect(c.driverOptions).to.deep.equal(options);
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(c.driverUrl).to.be.equal(model.driverUrl);
       });
     });
 
     context('promote values', () => {
-      it('should not include promoteValues when not specified', (done) => {
+      it('should not include promoteValues when not specified', async() => {
         const c = new Connection();
 
         expect(c.driverOptions).to.not.have.property('promoteValues');
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(c.driverUrl).to.be.equal(model.driverUrl);
+        expect(c.driverOptions).to.deep.equal(model.driverOptions);
       });
 
-      it('should set promoteValues to true', (done) => {
+      it('should set promoteValues to true', async() => {
         const c = new Connection({ promoteValues: true });
 
         expect(c.driverOptions).to.have.property('promoteValues');
         expect(c.driverOptions.promoteValues).to.be.equal(true);
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(c.driverUrl).to.be.equal(model.driverUrl);
       });
 
-      it('should set promoteValues to false', (done) => {
+      it('should set promoteValues to false', async() => {
         const c = new Connection({ promoteValues: false });
 
         expect(c.driverOptions).to.have.property('promoteValues');
         expect(c.driverOptions.promoteValues).to.be.equal(false);
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(c.driverUrl).to.be.equal(model.driverUrl);
       });
     });
 
     context('connection type', () => {
-      it('should set default connectionType to NODE_DRIVER', (done) => {
+      it('should set default connectionType to NODE_DRIVER', async() => {
         const c = new Connection({});
 
         expect(c.connectionType).to.be.equal('NODE_DRIVER');
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(c.driverUrl).to.be.equal(model.driverUrl);
+        expect(c.driverOptions).to.deep.equal(model.driverOptions);
       });
 
-      it('should set default host and port when connectionType is NODE_DRIVER', (done) => {
+      it('should set default host and port when connectionType is NODE_DRIVER', async() => {
         const c = new Connection({ connectionType: 'NODE_DRIVER' });
 
         expect(c.hostname).to.be.equal('localhost');
         expect(c.port).to.be.equal(27017);
 
-        Connection.from(c.driverUrl, (error) => {
-          expect(error).to.not.exist;
-          done();
-        });
+        const model = await Connection.from(c.driverUrl);
+        expect(c.driverUrl).to.be.equal(model.driverUrl);
+        expect(c.driverOptions).to.deep.equal(model.driverOptions);
       });
 
       it('should not allow stitchClientAppId', () => {
