@@ -28,7 +28,7 @@ describe('connection model connector', () => {
         connect(
           model,
           setupListeners,
-          (connectErr, client, { url, options }) => {
+          (connectErr, client, _tunnel, { url, options }) => {
             if (connectErr) throw connectErr;
 
             assert.strictEqual(
