@@ -81,7 +81,9 @@ describe('connection model connector', () => {
         default: class MockTunnel extends SSHTunnel {
           constructor(...args) {
             super(...args);
-            this.close = closeSpy = sinon.spy(this.close.bind(this));
+            this.serverClose = closeSpy = sinon.spy(
+              this.serverClose.bind(this)
+            );
           }
         }
       });
